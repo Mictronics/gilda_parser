@@ -10,7 +10,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/gilda_parser.py",
       "console": "integratedTerminal",
-      "args": ["./gilda/", "./output/"]
+      "args": ["./gilda/1004", "./output/database_v1004.sqlite"]
     },
     {
       "name": "Create",
