@@ -1,5 +1,8 @@
 __pycache__/*
+gilda/*
 .venv/*
 __init__.py
 *.sqlite
 *.sqlite3
+*.sqlite-journal
+*.sqlite3-journal
