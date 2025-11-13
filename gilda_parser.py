@@ -23,6 +23,7 @@ import signal
 import sys
 from pathlib import Path
 from database import Database
+from gilda_xml import GildaXml
 
 __author__ = "Michael Wolf aka Mictronics"
 __copyright__ = "2025, (C) Michael Wolf"
@@ -106,8 +107,8 @@ def main():
             print(f"Failed to read SQL file '{sql_file_path}': {e}")
             sys.exit(1)
         # Create the database
-        with Database() as db:
-            db.create(args.create, create_sql)
+        with Database(args.create) as db:
+            db.create(create_sql)
         print(f"Database '{args.create}' created successfully.")
         sys.exit(0)  # Exit after creating the database
     
@@ -118,17 +119,13 @@ def main():
 
     # Process GILDA XML files from input path
     # Walk through the input directory and find XML files
-    for root, dirs, files in os.walk(args.input):
+    for root, _dirs, files in os.walk(args.input):
         for file in files:
             if file.endswith((".XML", ".xml")):
                 file_path = os.path.join(root, file)
-                print(f"Processing file: {file_path}")
-                # Add XML parsing and database insertion logic here
-
-    # Or handle single file case
-    if os.path.isfile(args.input) and args.input.endswith((".XML", ".xml")):
-        print(f"Processing single file: {args.input}")
-        # Add XML parsing and database insertion logic here
+                #print(f"Processing file: {file_path}")
+                with GildaXml(args.output) as xml:
+                    xml.parse(file_path)
 
     sys.exit(0)  # Exit the program
 
