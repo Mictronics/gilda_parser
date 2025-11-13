@@ -1,17 +1,20 @@
 BEGIN TRANSACTION;
-CREATE TABLE IF NOT EXISTS "DataStructures" (
+DROP TABLE IF EXISTS "DataStructures";
+CREATE TABLE "DataStructures" (
 	"Id"	INTEGER NOT NULL,
 	"EngName"	TEXT NOT NULL UNIQUE,
 	"SourcePartition"	INTEGER NOT NULL,
 	PRIMARY KEY("Id" AUTOINCREMENT) ON CONFLICT IGNORE,
 	FOREIGN KEY("SourcePartition") REFERENCES "PartitionList"("Id")
 );
-CREATE TABLE IF NOT EXISTS "EquipmentType" (
+DROP TABLE IF EXISTS "EquipmentType";
+CREATE TABLE "EquipmentType" (
 	"Id"	INTEGER NOT NULL,
 	"Type"	TEXT NOT NULL UNIQUE,
 	PRIMARY KEY("Id")
 );
-CREATE TABLE IF NOT EXISTS "EthernetDefinitionList" (
+DROP TABLE IF EXISTS "EthernetDefinitionList";
+CREATE TABLE "EthernetDefinitionList" (
 	"Id"	INTEGER NOT NULL,
 	"Equipment"	TEXT,
 	"Ethernet"	TEXT,
@@ -19,23 +22,27 @@ CREATE TABLE IF NOT EXISTS "EthernetDefinitionList" (
 	PRIMARY KEY("Id"),
 	FOREIGN KEY("Module") REFERENCES "Modules"("Id")
 );
-CREATE TABLE IF NOT EXISTS "Modules" (
+DROP TABLE IF EXISTS "Modules";
+CREATE TABLE "Modules" (
 	"Id"	INTEGER NOT NULL,
 	"Name"	TEXT NOT NULL UNIQUE,
 	PRIMARY KEY("Id")
 );
-CREATE TABLE IF NOT EXISTS "MonitoringPoint" (
+DROP TABLE IF EXISTS "MonitoringPoint";
+CREATE TABLE "MonitoringPoint" (
 	"Id"	INTEGER NOT NULL,
 	"Type"	TEXT NOT NULL UNIQUE,
 	PRIMARY KEY("Id")
 );
-CREATE TABLE IF NOT EXISTS "ParameterDefinitions" (
+DROP TABLE IF EXISTS "ParameterDefinitions";
+CREATE TABLE "ParameterDefinitions" (
 	"Id"	INTEGER NOT NULL,
 	"Definition"	TEXT NOT NULL UNIQUE,
 	"Comment"	TEXT,
 	PRIMARY KEY("Id" AUTOINCREMENT) ON CONFLICT IGNORE
 );
-CREATE TABLE IF NOT EXISTS "ParameterFields" (
+DROP TABLE IF EXISTS "ParameterFields";
+CREATE TABLE "ParameterFields" (
 	"Id"	INTEGER NOT NULL,
 	"Name"	TEXT NOT NULL UNIQUE,
 	"RefEngName"	TEXT,
@@ -48,6 +55,11 @@ CREATE TABLE IF NOT EXISTS "ParameterFields" (
 	"Definition"	INTEGER,
 	"Unit"	INTEGER NOT NULL,
 	"Description"	TEXT,
+	"Min"	NUMERIC,
+	"Max"	NUMERIC,
+	"LowBit"	INTEGER,
+	"HighBit"	INTEGER,
+	"Comment"	TEXT,
 	PRIMARY KEY("Id" AUTOINCREMENT),
 	FOREIGN KEY("DataStructure") REFERENCES "DataStructures"("Id"),
 	FOREIGN KEY("Definition") REFERENCES "ParameterDefinitions"("Id"),
@@ -55,17 +67,20 @@ CREATE TABLE IF NOT EXISTS "ParameterFields" (
 	FOREIGN KEY("Type") REFERENCES "ParameterTypes"("Id"),
 	FOREIGN KEY("Unit") REFERENCES "ParameterUnits"("Id")
 );
-CREATE TABLE IF NOT EXISTS "ParameterTypes" (
+DROP TABLE IF EXISTS "ParameterTypes";
+CREATE TABLE "ParameterTypes" (
 	"Id"	INTEGER NOT NULL,
 	"Type"	TEXT NOT NULL UNIQUE,
 	PRIMARY KEY("Id" AUTOINCREMENT) ON CONFLICT IGNORE
 );
-CREATE TABLE IF NOT EXISTS "ParameterUnits" (
+DROP TABLE IF EXISTS "ParameterUnits";
+CREATE TABLE "ParameterUnits" (
 	"Id"	INTEGER NOT NULL,
 	"Unit"	TEXT NOT NULL UNIQUE,
 	PRIMARY KEY("Id" AUTOINCREMENT) ON CONFLICT IGNORE
 );
-CREATE TABLE IF NOT EXISTS "PartitionList" (
+DROP TABLE IF EXISTS "PartitionList";
+CREATE TABLE "PartitionList" (
 	"Id"	INTEGER NOT NULL,
 	"Name"	INTEGER NOT NULL UNIQUE,
 	PRIMARY KEY("Id" AUTOINCREMENT)
