@@ -3,24 +3,31 @@ DROP TABLE IF EXISTS "DataStructures";
 CREATE TABLE "DataStructures" (
 	"Id"	INTEGER NOT NULL,
 	"EngName"	TEXT NOT NULL UNIQUE,
-	"SourcePartition"	INTEGER NOT NULL,
-	PRIMARY KEY("Id" AUTOINCREMENT) ON CONFLICT IGNORE,
+	"SourcePartition"	INTEGER,
+	"SourceEquipment"	INTEGER,
+	"Channel"	INTEGER,
+	"MonitorPoint"	INTEGER,
+	PRIMARY KEY("Id" AUTOINCREMENT),
+	FOREIGN KEY("MonitorPoint") REFERENCES "MonitoringPoint"("Id"),
+	FOREIGN KEY("SourceEquipment") REFERENCES "EthernetDefinitionList"("Id"),
 	FOREIGN KEY("SourcePartition") REFERENCES "PartitionList"("Id")
-);
-DROP TABLE IF EXISTS "EquipmentType";
-CREATE TABLE "EquipmentType" (
-	"Id"	INTEGER NOT NULL,
-	"Type"	TEXT NOT NULL UNIQUE,
-	PRIMARY KEY("Id")
 );
 DROP TABLE IF EXISTS "EthernetDefinitionList";
 CREATE TABLE "EthernetDefinitionList" (
 	"Id"	INTEGER NOT NULL,
-	"Equipment"	TEXT,
+	"Name"	TEXT,
 	"Ethernet"	TEXT,
+	"Equipment"	INTEGER,
 	"Module"	INTEGER,
 	PRIMARY KEY("Id"),
+	FOREIGN KEY("Equipment") REFERENCES "Equipments"("Id")
 	FOREIGN KEY("Module") REFERENCES "Modules"("Id")
+);
+DROP TABLE IF EXISTS "Equipments";
+CREATE TABLE "Equipments" (
+	"Id"	INTEGER NOT NULL,
+	"Name"	TEXT NOT NULL,
+	PRIMARY KEY("Id") ON CONFLICT IGNORE
 );
 DROP TABLE IF EXISTS "Modules";
 CREATE TABLE "Modules" (
@@ -34,12 +41,21 @@ CREATE TABLE "MonitoringPoint" (
 	"Type"	TEXT NOT NULL UNIQUE,
 	PRIMARY KEY("Id")
 );
-DROP TABLE IF EXISTS "ParameterDefinitions";
-CREATE TABLE "ParameterDefinitions" (
+DROP TABLE IF EXISTS "ParameterEnumDefinitions";
+CREATE TABLE "ParameterEnumDefinitions" (
 	"Id"	INTEGER NOT NULL,
 	"Definition"	TEXT NOT NULL UNIQUE,
 	"Comment"	TEXT,
 	PRIMARY KEY("Id" AUTOINCREMENT) ON CONFLICT IGNORE
+);
+DROP TABLE IF EXISTS "ParameterEnumValues";
+CREATE TABLE "ParameterEnumValues" (
+	"ParameterField"	INTEGER NOT NULL,
+	"Value"	INTEGER NOT NULL,
+	"Definition"	INTEGER NOT NULL,
+	PRIMARY KEY("ParameterField","Value","Definition"),
+	FOREIGN KEY("Definition") REFERENCES "ParameterEnumDefinitions"("Id"),
+	FOREIGN KEY("ParameterField") REFERENCES "ParameterFields"("Id")
 );
 DROP TABLE IF EXISTS "ParameterFields";
 CREATE TABLE "ParameterFields" (
@@ -51,8 +67,6 @@ CREATE TABLE "ParameterFields" (
 	"Type"	INTEGER NOT NULL,
 	"SourcePartition"	INTEGER NOT NULL,
 	"DataStructure"	INTEGER NOT NULL,
-	"Value"	INTEGER,
-	"Definition"	INTEGER,
 	"Unit"	INTEGER NOT NULL,
 	"Description"	TEXT,
 	"Min"	NUMERIC,
@@ -62,7 +76,6 @@ CREATE TABLE "ParameterFields" (
 	"Comment"	TEXT,
 	PRIMARY KEY("Id" AUTOINCREMENT),
 	FOREIGN KEY("DataStructure") REFERENCES "DataStructures"("Id"),
-	FOREIGN KEY("Definition") REFERENCES "ParameterDefinitions"("Id"),
 	FOREIGN KEY("SourcePartition") REFERENCES "PartitionList"("Id"),
 	FOREIGN KEY("Type") REFERENCES "ParameterTypes"("Id"),
 	FOREIGN KEY("Unit") REFERENCES "ParameterUnits"("Id")
@@ -85,32 +98,61 @@ CREATE TABLE "PartitionList" (
 	"Name"	INTEGER NOT NULL UNIQUE,
 	PRIMARY KEY("Id" AUTOINCREMENT)
 );
-INSERT INTO "EquipmentType" VALUES (1,'Partition');
-INSERT INTO "EquipmentType" VALUES (2,'EquipmentDefinition');
-INSERT INTO "EquipmentType" VALUES (3,'EquipmentInstallation');
-INSERT INTO "EthernetDefinitionList" VALUES (1,'AMC1','193.0.161.111',1);
-INSERT INTO "EthernetDefinitionList" VALUES (2,'AMC1','193.0.161.112',2);
-INSERT INTO "EthernetDefinitionList" VALUES (3,'AMC2','193.0.161.121',1);
-INSERT INTO "EthernetDefinitionList" VALUES (4,'AMC2','193.0.161.122',2);
-INSERT INTO "EthernetDefinitionList" VALUES (5,'MFD1','193.0.161.211',3);
-INSERT INTO "EthernetDefinitionList" VALUES (6,'MFD1','193.0.161.212',4);
-INSERT INTO "EthernetDefinitionList" VALUES (7,'MFD2','193.0.161.221',3);
-INSERT INTO "EthernetDefinitionList" VALUES (8,'MFD2','193.0.161.222',4);
-INSERT INTO "EthernetDefinitionList" VALUES (9,'MFD3','193.0.161.231',3);
-INSERT INTO "EthernetDefinitionList" VALUES (10,'MFD3','193.0.161.232',4);
-INSERT INTO "EthernetDefinitionList" VALUES (11,'MFD4','193.0.161.241',3);
-INSERT INTO "EthernetDefinitionList" VALUES (12,'MFD4','193.0.161.242',4);
-INSERT INTO "EthernetDefinitionList" VALUES (13,'DTD','193.0.161.151',5);
-INSERT INTO "EthernetDefinitionList" VALUES (14,'DTD_PC','193.0.161.50',5);
-INSERT INTO "EthernetDefinitionList" VALUES (15,'IMT_PC','193.0.161.10',5);
-INSERT INTO "EthernetDefinitionList" VALUES (16,'DMAU','193.0.161.55',5);
-INSERT INTO "EthernetDefinitionList" VALUES (17,'WDTS1','193.0.161.151',5);
-INSERT INTO "EthernetDefinitionList" VALUES (18,'STC','193.0.161.53',5);
+DROP TABLE IF EXISTS "ChannelDirection";
+CREATE TABLE "ChannelDirection" (
+	"Id"	INTEGER NOT NULL,
+	"Direction"	TEXT NOT NULL,
+	PRIMARY KEY("Id")
+);
+DROP TABLE IF EXISTS "Channels";
+CREATE TABLE "Channels" (
+	"Id"	INTEGER NOT NULL,
+	"Equipment"	INTEGER NOT NULL,
+	"Module"	INTEGER NOT NULL,
+	"Direction"	INTEGER NOT NULL,
+	"DataStructure"	INTEGER,
+	"Description"	TEXT,
+	PRIMARY KEY("Id","Equipment","Module"),
+	FOREIGN KEY("DataStructure") REFERENCES "DataStructures"("Id"),
+	FOREIGN KEY("Equipment") REFERENCES "EthernetDefinitionList"("Id"),
+	FOREIGN KEY("Module") REFERENCES "Modules"("Id")
+	FOREIGN KEY("Direction") REFERENCES "ChannelDirection"("Id")
+);
+INSERT INTO "Equipments" VALUES (1,'AMC');
+INSERT INTO "Equipments" VALUES (2,'MFD');
+INSERT INTO "Equipments" VALUES (3,'DTD');
+INSERT INTO "Equipments" VALUES (4,'DTD_PC');
+INSERT INTO "Equipments" VALUES (5,'IMT_PC');
+INSERT INTO "Equipments" VALUES (6,'DMAU');
+INSERT INTO "Equipments" VALUES (7,'WDTS1');
+INSERT INTO "Equipments" VALUES (8,'STC');
 INSERT INTO "Modules" VALUES (1,'ChA');
 INSERT INTO "Modules" VALUES (2,'ChB');
-INSERT INTO "Modules" VALUES (3,'SB1');
-INSERT INTO "Modules" VALUES (4,'SB2');
-INSERT INTO "Modules" VALUES (5,'N/A');
+INSERT INTO "Modules" VALUES (3,'Chx');
+INSERT INTO "Modules" VALUES (4,'SB1');
+INSERT INTO "Modules" VALUES (5,'SB2');
+INSERT INTO "Modules" VALUES (6,'N/A');
+INSERT INTO "ChannelDirection" VALUES (1,'From');
+INSERT INTO "ChannelDirection" VALUES (2,'To');
+INSERT INTO "ChannelDirection" VALUES (3,'Inter');
+INSERT INTO "EthernetDefinitionList" VALUES (1,'AMC1A','193.0.161.111',1,1);
+INSERT INTO "EthernetDefinitionList" VALUES (2,'AMC1B','193.0.161.112',1,2);
+INSERT INTO "EthernetDefinitionList" VALUES (3,'AMC2A','193.0.161.121',1,1);
+INSERT INTO "EthernetDefinitionList" VALUES (4,'AMC2B','193.0.161.122',1,2);
+INSERT INTO "EthernetDefinitionList" VALUES (5,'MFD1SR1','193.0.161.211',2,3);
+INSERT INTO "EthernetDefinitionList" VALUES (6,'MFD1SR2','193.0.161.212',2,4);
+INSERT INTO "EthernetDefinitionList" VALUES (7,'MFD2SR1','193.0.161.221',2,3);
+INSERT INTO "EthernetDefinitionList" VALUES (8,'MFD2SR2','193.0.161.222',2,4);
+INSERT INTO "EthernetDefinitionList" VALUES (9,'MFD3SR1','193.0.161.231',2,3);
+INSERT INTO "EthernetDefinitionList" VALUES (10,'MFD3SR2','193.0.161.232',2,4);
+INSERT INTO "EthernetDefinitionList" VALUES (11,'MFD4SR1','193.0.161.241',2,3);
+INSERT INTO "EthernetDefinitionList" VALUES (12,'MFD4SR2','193.0.161.242',2,4);
+INSERT INTO "EthernetDefinitionList" VALUES (13,'DTD','193.0.161.151',3,5);
+INSERT INTO "EthernetDefinitionList" VALUES (14,'DTD_PC','193.0.161.50',4,5);
+INSERT INTO "EthernetDefinitionList" VALUES (15,'IMT_PC','193.0.161.10',5,5);
+INSERT INTO "EthernetDefinitionList" VALUES (16,'DMAU','193.0.161.55',6,5);
+INSERT INTO "EthernetDefinitionList" VALUES (17,'WDTS1','193.0.161.151',7,5);
+INSERT INTO "EthernetDefinitionList" VALUES (18,'STC','193.0.161.53',8,5);
 INSERT INTO "MonitoringPoint" VALUES (1,'Sender');
 INSERT INTO "MonitoringPoint" VALUES (2,'Distribution');
 INSERT INTO "MonitoringPoint" VALUES (3,'Sender+Distribution');
@@ -119,6 +161,7 @@ INSERT INTO "MonitoringPoint" VALUES (5,'Sender+Receiver');
 INSERT INTO "MonitoringPoint" VALUES (6,'Distribution+Receiver');
 INSERT INTO "MonitoringPoint" VALUES (7,'All');
 INSERT INTO "ParameterTypes" VALUES (1,'enum');
+INSERT INTO "ParameterUnits" VALUES (1,'unitless');
 INSERT INTO "PartitionList" VALUES (1,'N/A');
 INSERT INTO "PartitionList" VALUES (2,'AFCS');
 INSERT INTO "PartitionList" VALUES (3,'BSP');
@@ -140,4 +183,26 @@ INSERT INTO "PartitionList" VALUES (18,'VMS_C');
 INSERT INTO "PartitionList" VALUES (19,'LOADER');
 INSERT INTO "PartitionList" VALUES (20,'DTD');
 INSERT INTO "PartitionList" VALUES (21,'ADAHRS');
+DROP VIEW IF EXISTS ViewEquipmentList;
+CREATE VIEW ViewEquipmentList AS
+SELECT
+  edf.Id AS Id,
+  edf.Name AS Description,
+  eq.Name AS Equipment,
+  m.Name AS Module,
+  edf.Ethernet AS IP
+FROM EthernetDefinitionList edf
+JOIN Equipments eq ON edf.Equipment = eq.Id
+JOIN Modules m ON edf.Module = m.Id;
+DROP VIEW IF EXISTS ViewParameterEnumValues;
+CREATE VIEW ViewParameterEnumValues AS
+SELECT
+  pf.Id AS ParameterField,
+  pf.Name AS Name,
+  pev.Value AS Value,
+  ped.Definition AS Definition,
+  ped.Comment AS Comment
+FROM ParameterEnumValues pev
+JOIN ParameterFields pf ON pev.ParameterField = pf.Id
+JOIN ParameterEnumDefinitions ped ON pev.Definition = ped.Id;
 COMMIT;
