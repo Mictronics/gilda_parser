@@ -23,7 +23,7 @@ import signal
 import sys
 from pathlib import Path
 from database import Database
-from gilda_xml import GildaXml
+from gilda_xml import GildaXml, GildaChannelsXml
 
 __author__ = "Michael Wolf aka Mictronics"
 __copyright__ = "2025, (C) Michael Wolf"
@@ -126,8 +126,16 @@ def main():
         for file in files:
             if file.endswith((".XML", ".xml")):
                 file_path = os.path.join(root, file)
-                # print(f"Processing file: {file_path}")
                 with GildaXml(args.output) as xml:
+                    xml.parse(file_path)
+
+    # We need all data structures before processing channel XML files
+    # Found channel IDs will be assigned to existing data structures
+    for root, _dirs, files in os.walk(args.input):
+        for file in files:
+            if file.lower() == "channels.xml":
+                file_path = os.path.join(root, file)
+                with GildaChannelsXml(args.output) as xml:
                     xml.parse(file_path)
 
     sys.exit(0)  # Exit the program
