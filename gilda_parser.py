@@ -112,7 +112,6 @@ def main():
         # Create the database
         with Database(args.create) as db:
             db.create(create_sql)
-        print(f"Database '{args.create}' created successfully.")
         sys.exit(0)  # Exit after creating the database
 
     if args.input is None or args.output is None:
