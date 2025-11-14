@@ -18,7 +18,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/gilda_parser.py",
       "console": "integratedTerminal",
-      "args": ["--create", "./output/database.sqlite3"]
+      "args": ["--create", "./output/database_v1004.sqlite"]
     }
   ]
 }
