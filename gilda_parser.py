@@ -30,6 +30,7 @@ __copyright__ = "2025, (C) Michael Wolf"
 __license__ = "GPL v3+"
 __version__ = "1.0.0"
 
+
 def initArgParser(parser=None):
     """Initialize the command line argument parsing."""
     if parser is None:
@@ -69,8 +70,9 @@ def initArgParser(parser=None):
     except Exception as e:
         print(f"Error initializing argument parser: {e}")
         return None
-    
+
     return args
+
 
 def main():
     """Main program function"""
@@ -89,14 +91,15 @@ def main():
     )
     args = initArgParser(parser)
     if args is None:
-        sys.exit(1) # Exit with error when argument parsing fails
+        sys.exit(1)  # Exit with error when argument parsing fails
 
     # Handle database creation
     if args.create is not None:
         sql_file_path = Path(__file__).parent / "create_gilda_database.sql"
         # Check if SQL file exists
         if not sql_file_path.is_file():
-            print(f"SQL file for database creation not found: '{sql_file_path}'")
+            print(
+                f"SQL file for database creation not found: '{sql_file_path}'")
             sys.exit(1)
         # Read SQL file content
         create_sql = None
@@ -111,7 +114,7 @@ def main():
             db.create(create_sql)
         print(f"Database '{args.create}' created successfully.")
         sys.exit(0)  # Exit after creating the database
-    
+
     if args.input is None or args.output is None:
         print("Input path and output database must be specified.")
         parser.print_help()
@@ -123,11 +126,12 @@ def main():
         for file in files:
             if file.endswith((".XML", ".xml")):
                 file_path = os.path.join(root, file)
-                #print(f"Processing file: {file_path}")
+                # print(f"Processing file: {file_path}")
                 with GildaXml(args.output) as xml:
                     xml.parse(file_path)
 
     sys.exit(0)  # Exit the program
+
 
 if __name__ == "__main__":
     main()
