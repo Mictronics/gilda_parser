@@ -205,4 +205,19 @@ SELECT
 FROM ParameterEnumValues pev
 JOIN ParameterFields pf ON pev.ParameterField = pf.Id
 JOIN ParameterEnumDefinitions ped ON pev.Definition = ped.Id;
+DROP VIEW IF EXISTS ViewChannels;
+CREATE VIEW ViewChannels AS
+SELECT
+  ch.Id AS Id,
+  eq.Name AS Equipment,
+  m.Name AS Module,
+  cd.Direction AS Direction,
+  ds.EngName AS DataStructure,
+  ch.Description AS Description
+FROM Channels ch
+LEFT JOIN EthernetDefinitionList edf ON ch.Equipment = edf.Id
+LEFT JOIN Equipments eq ON edf.Equipment = eq.Id
+LEFT JOIN Modules m ON edf.Module = m.Id
+LEFT JOIN ChannelDirection cd ON ch.Direction = cd.Id
+LEFT JOIN DataStructures ds ON ch.DataStructure = ds.Id;
 COMMIT;
