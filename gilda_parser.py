@@ -93,7 +93,7 @@ def main():
     if args is None:
         sys.exit(1)  # Exit with error when argument parsing fails
 
-    # Handle database creation
+    # Handle database creation when [--create] was given
     if args.create is not None:
         sql_file_path = Path(__file__).parent / "create_gilda_database.sql"
         # Check if SQL file exists
@@ -119,6 +119,15 @@ def main():
         parser.print_help()
         sys.exit(1)
 
+    # First need the channels before processing channel XML files
+    # Found channel IDs will be assigned to existing data structures
+    for root, _dirs, files in os.walk(args.input):
+        for file in files:
+            if file.lower() == "channels.xml":
+                file_path = os.path.join(root, file)
+                with GildaChannelsXml(args.output) as xml:
+                    xml.parse(file_path)
+
     # Process GILDA XML files from input path
     # Walk through the input directory and find XML files
     for root, _dirs, files in os.walk(args.input):
@@ -126,15 +135,6 @@ def main():
             if file.endswith((".XML", ".xml")):
                 file_path = os.path.join(root, file)
                 with GildaXml(args.output) as xml:
-                    xml.parse(file_path)
-
-    # We need all data structures before processing channel XML files
-    # Found channel IDs will be assigned to existing data structures
-    for root, _dirs, files in os.walk(args.input):
-        for file in files:
-            if file.lower() == "channels.xml":
-                file_path = os.path.join(root, file)
-                with GildaChannelsXml(args.output) as xml:
                     xml.parse(file_path)
 
     sys.exit(0)  # Exit the program
