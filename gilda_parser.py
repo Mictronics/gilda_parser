@@ -23,7 +23,7 @@ import signal
 import sys
 from pathlib import Path
 from database import Database
-from gilda_xml import GildaXml, GildaChannelsXml
+from gilda_xml import GildaChannelsXml, GildaXml
 
 __author__ = "Michael Wolf aka Mictronics"
 __copyright__ = "2025, (C) Michael Wolf"
@@ -42,7 +42,7 @@ def initArgParser(parser=None):
             "input",
             help="Input path that contains GILDA export XML files.",
             default=None,
-            nargs='?',
+            nargs="?",
             type=str,
         )
 
@@ -50,7 +50,7 @@ def initArgParser(parser=None):
             "output",
             help="Output SQLite database file, including path.",
             default=None,
-            nargs='?',
+            nargs="?",
             type=str,
         )
         # Optional arguments
@@ -59,7 +59,15 @@ def initArgParser(parser=None):
             metavar="DATABASE",
             help="Create a new database, overwriting existing files.",
             default=None,
-            type=str
+            type=str,
+        )
+
+        parser.add_argument(
+            "-s",
+            "--structures",
+            help="Insert or update existing data structures. Mandatory with empty database.",
+            action="store_true",
+            default=False,
         )
 
         parser.set_defaults(deprecated=None)
@@ -79,6 +87,7 @@ def main():
     # Setup signal handlers for graceful termination
     def signal_handler(signal, frame):
         sys.exit(0)
+
     # Register signal handlers
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGABRT, signal_handler)
@@ -134,7 +143,7 @@ def main():
         for file in files:
             if file.endswith((".XML", ".xml")):
                 file_path = os.path.join(root, file)
-                with GildaXml(args.output) as xml:
+                with GildaXml(args.output, args.structures) as xml:
                     xml.parse(file_path)
 
     sys.exit(0)  # Exit the program
