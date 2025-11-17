@@ -42,7 +42,8 @@ class GildaXml:
         """Parse a GILDA XML file and insert data into the database."""
         if file is None:
             return
-        # Get static partition mapping from the database
+        # Get static mapping of existing data from the database
+        # Avoids queries for each item, improves performance
         partitions = self.database.get_partitions()
         types = self.database.get_types()
         units = self.database.get_units()
@@ -63,17 +64,18 @@ class GildaXml:
                     src_partition = partitions[
                         struct.getAttribute("EmittedByPartition")
                     ]
-                    struct_data = {
-                        "name": eng_name,
-                        "src_partition": src_partition,
-                        "channel_id": None,
-                    }
-                    ch_id = self.database.get_channel_id(eng_name)
-                    if ch_id is not None:
-                        struct_data["channel_id"] = ch_id
                     # Insert or update the data structure in the database
                     struct_id = None
                     if eng_name not in data_structures or self.structures is True:
+                        struct_data = {
+                            "name": eng_name,
+                            "src_partition": src_partition,
+                            "channel_id": None,
+                        }
+                        # Query channel ID for structure only if inserting new structure
+                        ch_id = self.database.get_channel_id(eng_name)
+                        if ch_id is not None:
+                            struct_data["channel_id"] = ch_id
                         struct_id = self.database.insert_structure(struct_data)
                         data_structures[eng_name] = struct_id
                     else:
