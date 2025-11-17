@@ -24,7 +24,8 @@ class Database:
     def __init__(self, database_path):
         # Connect to database
         try:
-            self.database = sqlite3.connect(database_path, isolation_level="DEFERRED")
+            self.database = sqlite3.connect(
+                database_path, isolation_level="DEFERRED")
             self.cursor = self.database.cursor()
             self.database.execute("PRAGMA journal_mode = TRUNCATE;")
             self.database.execute("PRAGMA foreign_keys = ON;")
@@ -71,7 +72,7 @@ class Database:
     def insert_structure(self, data):
         """Insert a data structure into the database."""
         self.cursor.execute(
-            """INSERT INTO DataStructures (EngName, SourcePartition, ChannelRowId)
+            """INSERT INTO DataStructures (EngName, SourcePartition, Channel)
              VALUES (:name, :src_partition, :channel_id)
              ON CONFLICT(EngName)
              DO UPDATE SET SourcePartition = :src_partition WHERE EngName = :name;""",
@@ -86,7 +87,8 @@ class Database:
     def insert_type(self, type):
         """Insert parameter types into the database."""
         self.cursor.execute(
-            "INSERT OR IGNORE INTO ParameterTypes (Type) VALUES (:type);", [type]
+            "INSERT OR IGNORE INTO ParameterTypes (Type) VALUES (:type);", [
+                type]
         )
         self.database.commit()
         # Retrieve the ID of the inserted type
@@ -103,7 +105,8 @@ class Database:
     def insert_unit(self, unit):
         """Insert parameter unit into the database."""
         self.cursor.execute(
-            "INSERT OR IGNORE INTO ParameterUnits (Unit) VALUES (:unit);", [unit]
+            "INSERT OR IGNORE INTO ParameterUnits (Unit) VALUES (:unit);", [
+                unit]
         )
         self.database.commit()
         # Retrieve the ID of the inserted unit
@@ -218,13 +221,9 @@ class Database:
         self.database.commit()
 
     def get_channel_id(self, desc):
-        """
-        Retrieve channel ID by name.
-        Be aware that ROWID is used as unique identifier here
-        since one channel can be assigned to multiple data structures.
-        """
+        """Retrieve channel ID by name."""
         row = self.cursor.execute(
-            "SELECT ROWID FROM Channels WHERE Description = ?;", [desc]
+            "SELECT Id FROM Channels WHERE Description = ?;", [desc]
         )
         result = row.fetchone()
         if result is not None:

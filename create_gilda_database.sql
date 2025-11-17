@@ -4,7 +4,7 @@ CREATE TABLE "DataStructures" (
 	"Id"	INTEGER NOT NULL,
 	"EngName"	TEXT NOT NULL UNIQUE,
 	"SourcePartition"	INTEGER,
-	"ChannelRowId"	INTEGER,
+	"Channel"	INTEGER,
 	PRIMARY KEY("Id" AUTOINCREMENT),
 	FOREIGN KEY("SourcePartition") REFERENCES "PartitionList"("Id")
 );
@@ -201,4 +201,28 @@ LEFT JOIN Equipments eq ON edf.Equipment = eq.Id
 LEFT JOIN Modules m ON edf.Module = m.Id
 LEFT JOIN ChannelDirection cd ON ch.Direction = cd.Id
 LEFT JOIN DataStructures ds ON ch.DataStructure = ds.Id;
+DROP VIEW IF EXISTS ViewParameterFields;
+CREATE VIEW ViewParameterFields AS
+SELECT
+  pf.Id AS Id,
+  pf.Name AS Name,
+  pf.RefEngName AS RefEngName,
+  pf.Size AS Size,
+  pf.Offset AS Offset,
+  pt.Type AS Type,
+  pl.Name AS SourcePartition,
+  ds.EngName AS DataStructure,
+  ds.Channel AS Channel,
+  pu.Unit AS Unit,
+  pf.Description AS Description,
+  pf.Min AS Min,
+  pf.Max AS Max,
+  pf.LowBit AS LowBit,
+  pf.HighBit AS HighBit,
+  pf.Comment AS Comment
+FROM ParameterFields pf
+LEFT JOIN ParameterTypes pt ON pf.Type = pt.Id
+LEFT JOIN ParameterUnits pu ON pf.Unit = pu.Id
+LEFT JOIN PartitionList pl ON pf.SourcePartition = pl.Id
+LEFT JOIN DataStructures ds ON pf.DataStructure = ds.Id;
 COMMIT;
