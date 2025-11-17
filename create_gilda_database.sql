@@ -4,12 +4,8 @@ CREATE TABLE "DataStructures" (
 	"Id"	INTEGER NOT NULL,
 	"EngName"	TEXT NOT NULL UNIQUE,
 	"SourcePartition"	INTEGER,
-	"SourceEquipment"	INTEGER,
-	"Channel"	INTEGER,
-	"MonitorPoint"	INTEGER,
+	"ChannelRowId"	INTEGER,
 	PRIMARY KEY("Id" AUTOINCREMENT),
-	FOREIGN KEY("MonitorPoint") REFERENCES "MonitoringPoint"("Id"),
-	FOREIGN KEY("SourceEquipment") REFERENCES "EthernetDefinitionList"("Id"),
 	FOREIGN KEY("SourcePartition") REFERENCES "PartitionList"("Id")
 );
 DROP TABLE IF EXISTS "EthernetDefinitionList";
@@ -33,12 +29,6 @@ DROP TABLE IF EXISTS "Modules";
 CREATE TABLE "Modules" (
 	"Id"	INTEGER NOT NULL,
 	"Name"	TEXT NOT NULL UNIQUE,
-	PRIMARY KEY("Id")
-);
-DROP TABLE IF EXISTS "MonitoringPoint";
-CREATE TABLE "MonitoringPoint" (
-	"Id"	INTEGER NOT NULL,
-	"Type"	TEXT NOT NULL UNIQUE,
 	PRIMARY KEY("Id")
 );
 DROP TABLE IF EXISTS "ParameterEnumDefinitions";
@@ -110,10 +100,8 @@ CREATE TABLE "Channels" (
 	"Equipment"	INTEGER NOT NULL,
 	"Module"	INTEGER NOT NULL,
 	"Direction"	INTEGER NOT NULL,
-	"DataStructure"	INTEGER,
 	"Description"	TEXT,
 	PRIMARY KEY("Id","Equipment","Module"),
-	FOREIGN KEY("DataStructure") REFERENCES "DataStructures"("Id"),
 	FOREIGN KEY("Equipment") REFERENCES "EthernetDefinitionList"("Id"),
 	FOREIGN KEY("Module") REFERENCES "Modules"("Id")
 	FOREIGN KEY("Direction") REFERENCES "ChannelDirection"("Id")
@@ -153,13 +141,6 @@ INSERT INTO "EthernetDefinitionList" VALUES (15,'IMT_PC','193.0.161.10',5,5);
 INSERT INTO "EthernetDefinitionList" VALUES (16,'DMAU','193.0.161.55',6,5);
 INSERT INTO "EthernetDefinitionList" VALUES (17,'WDTS1','193.0.161.151',7,5);
 INSERT INTO "EthernetDefinitionList" VALUES (18,'STC','193.0.161.53',8,5);
-INSERT INTO "MonitoringPoint" VALUES (1,'Sender');
-INSERT INTO "MonitoringPoint" VALUES (2,'Distribution');
-INSERT INTO "MonitoringPoint" VALUES (3,'Sender+Distribution');
-INSERT INTO "MonitoringPoint" VALUES (4,'Receiver');
-INSERT INTO "MonitoringPoint" VALUES (5,'Sender+Receiver');
-INSERT INTO "MonitoringPoint" VALUES (6,'Distribution+Receiver');
-INSERT INTO "MonitoringPoint" VALUES (7,'All');
 INSERT INTO "ParameterTypes" VALUES (1,'enum');
 INSERT INTO "ParameterUnits" VALUES (1,'unitless');
 INSERT INTO "PartitionList" VALUES (1,'N/A');
