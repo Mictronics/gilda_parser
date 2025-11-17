@@ -24,8 +24,7 @@ class Database:
     def __init__(self, database_path):
         # Connect to database
         try:
-            self.database = sqlite3.connect(
-                database_path, isolation_level='DEFERRED')
+            self.database = sqlite3.connect(database_path, isolation_level="DEFERRED")
             self.cursor = self.database.cursor()
             self.database.execute("PRAGMA journal_mode = TRUNCATE;")
             self.database.execute("PRAGMA foreign_keys = ON;")
@@ -48,6 +47,7 @@ class Database:
 
     def create(self, sql):
         """Create database schema."""
+        self.database.execute("PRAGMA foreign_keys = OFF;")
         self.cursor.executescript(sql)
         self.database.commit()
 
@@ -63,6 +63,11 @@ class Database:
         # Return a dictionary mapping module names to their IDs
         return {r[1]: r[0] for r in row.fetchall()}
 
+    def get_structures(self):
+        """Retrieve all parameter units from the database."""
+        row = self.cursor.execute("SELECT Id, EngName FROM DataStructures;")
+        return {r[1]: r[0] for r in row.fetchall()}
+
     def insert_structure(self, data):
         """Insert a data structure into the database."""
         self.cursor.execute(
@@ -70,7 +75,7 @@ class Database:
              VALUES (:name, :src_partition, :channel_id)
              ON CONFLICT(EngName)
              DO UPDATE SET SourcePartition = :src_partition WHERE EngName = :name;""",
-            data
+            data,
         )
         self.database.commit()
         # Retrieve the ID of the inserted structure
@@ -81,13 +86,13 @@ class Database:
     def insert_type(self, type):
         """Insert parameter types into the database."""
         self.cursor.execute(
-            "INSERT OR IGNORE INTO ParameterTypes (Type) VALUES (:type);", [
-                type]
+            "INSERT OR IGNORE INTO ParameterTypes (Type) VALUES (:type);", [type]
         )
         self.database.commit()
         # Retrieve the ID of the inserted type
         row = self.cursor.execute(
-            "SELECT Id FROM ParameterTypes WHERE Type = ?;", [type])
+            "SELECT Id FROM ParameterTypes WHERE Type = ?;", [type]
+        )
         return row.fetchone()[0]
 
     def get_types(self):
@@ -98,13 +103,13 @@ class Database:
     def insert_unit(self, unit):
         """Insert parameter unit into the database."""
         self.cursor.execute(
-            "INSERT OR IGNORE INTO ParameterUnits (Unit) VALUES (:unit);", [
-                unit]
+            "INSERT OR IGNORE INTO ParameterUnits (Unit) VALUES (:unit);", [unit]
         )
         self.database.commit()
         # Retrieve the ID of the inserted unit
         row = self.cursor.execute(
-            "SELECT Id FROM ParameterUnits WHERE Unit = ?;", [unit])
+            "SELECT Id FROM ParameterUnits WHERE Unit = ?;", [unit]
+        )
         return row.fetchone()[0]
 
     def get_units(self):
@@ -119,12 +124,14 @@ class Database:
             """INSERT INTO ParameterEnumDefinitions (Definition, Comment) VALUES (:definition, :comment)
              ON CONFLICT(Definition)
              DO UPDATE SET Comment = :comment WHERE Definition = :definition;""",
-            data
+            data,
         )
         self.database.commit()
         # Retrieve the ID of the inserted definition
         row = self.cursor.execute(
-            "SELECT Id FROM ParameterEnumDefinitions WHERE Definition = ?;", [data["definition"]])
+            "SELECT Id FROM ParameterEnumDefinitions WHERE Definition = ?;",
+            [data["definition"]],
+        )
         return row.fetchone()[0]
 
     def get_enum_definitions(self):
@@ -137,7 +144,7 @@ class Database:
         # First try to insert or update to ensure all values are set
         self.cursor.execute(
             """INSERT OR REPLACE INTO ParameterEnumValues (ParameterField, Value, Definition) VALUES (:field_id, :value, :definition_id);""",
-            data
+            data,
         )
         self.database.commit()
 
@@ -164,21 +171,24 @@ class Database:
              LowBit = :low_bit,
              HighBit = :high_bit
              WHERE Name = :name;""",
-            [data]
+            [data],
         )
         self.database.commit()
         # Retrieve the ID of the inserted field
         row = self.cursor.execute(
-            "SELECT Id FROM ParameterFields WHERE Name = ?;", [data["name"]])
+            "SELECT Id FROM ParameterFields WHERE Name = ?;", [data["name"]]
+        )
         return row.fetchone()[0]
 
     def get_channel_source(self, equipment: str, module: str):
         """Retrieve channel source mapping from the database."""
         eq_row = self.cursor.execute(
-            "SELECT Id FROM Equipments WHERE Name = ?;", [equipment])
+            "SELECT Id FROM Equipments WHERE Name = ?;", [equipment]
+        )
         eq_id = eq_row.fetchone()
         mod_row = self.cursor.execute(
-            "SELECT Id FROM Modules WHERE Name = ?;", [module])
+            "SELECT Id FROM Modules WHERE Name = ?;", [module]
+        )
         mod_id = mod_row.fetchone()
         if eq_id is None or mod_id is None:
             return None
@@ -203,7 +213,7 @@ class Database:
              Direction = :direction,
              Description = :desc
              WHERE Id = :id;""",
-            data
+            data,
         )
         self.database.commit()
 
@@ -214,7 +224,8 @@ class Database:
         since one channel can be assigned to multiple data structures.
         """
         row = self.cursor.execute(
-            "SELECT ROWID FROM Channels WHERE Description = ?;", [desc])
+            "SELECT ROWID FROM Channels WHERE Description = ?;", [desc]
+        )
         result = row.fetchone()
         if result is not None:
             return result[0]

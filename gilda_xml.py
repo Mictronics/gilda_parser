@@ -22,9 +22,10 @@ from database import Database
 class GildaXml:
     """GILDA XML parser class."""
 
-    def __init__(self, database_path: str):
+    def __init__(self, database_path: str, structures: bool = False):
         # Initialize database connection
         self.database = Database(database_path)
+        self.structures = structures
 
     def __enter__(self):
         return self
@@ -35,7 +36,7 @@ class GildaXml:
 
     def is_binary_string(self, s):
         """Check if a string is a binary representation (only '0' and '1')."""
-        return set(s).issubset({'0', '1'})
+        return set(s).issubset({"0", "1"})
 
     def parse(self, file=None):
         """Parse a GILDA XML file and insert data into the database."""
@@ -46,6 +47,7 @@ class GildaXml:
         types = self.database.get_types()
         units = self.database.get_units()
         definitions = self.database.get_enum_definitions()
+        data_structures = self.database.get_structures()
 
         try:
             # Parse the XML file
@@ -54,10 +56,13 @@ class GildaXml:
             structures = document.getElementsByTagName("Structure")
             for struct in structures:
                 # Handle data structure
-                if struct.hasAttribute("EngName") and struct.hasAttribute("EmittedByPartition"):
+                if struct.hasAttribute("EngName") and struct.hasAttribute(
+                    "EmittedByPartition"
+                ):
                     eng_name = struct.getAttribute("EngName").strip()
-                    src_partition = partitions[struct.getAttribute(
-                        "EmittedByPartition")]
+                    src_partition = partitions[
+                        struct.getAttribute("EmittedByPartition")
+                    ]
                     struct_data = {
                         "name": eng_name,
                         "src_partition": src_partition,
@@ -66,7 +71,19 @@ class GildaXml:
                     ch_id = self.database.get_channel_id(eng_name)
                     if ch_id is not None:
                         struct_data["channel_id"] = ch_id
-                    struct_id = self.database.insert_structure(struct_data)
+                    # Insert or update the data structure in the database
+                    struct_id = None
+                    if eng_name not in data_structures or self.structures is True:
+                        struct_id = self.database.insert_structure(struct_data)
+                        data_structures[eng_name] = struct_id
+                    else:
+                        # Update existing structure
+                        struct_id = data_structures[eng_name]
+                    # Validate that the structure exists
+                    if struct_id is None:
+                        raise ValueError(
+                            f"Data structure '{eng_name}' could not be found in database."
+                        )
                     # Handle fields associated with the structure
                     fields = struct.getElementsByTagName("Field")
                     for field in fields:
@@ -77,7 +94,11 @@ class GildaXml:
                                 "size": int(field.getAttribute("Size")),
                                 "offset": int(field.getAttribute("Offset")),
                                 "src_partition": src_partition,
-                                "description": field.getAttribute("Description") if field.hasAttribute("Description") else None,
+                                "description": (
+                                    field.getAttribute("Description")
+                                    if field.hasAttribute("Description")
+                                    else None
+                                ),
                                 "min": None,
                                 "max": None,
                                 "low_bit": None,
@@ -88,11 +109,15 @@ class GildaXml:
                             bits = field.getElementsByTagName("BitField")
                             if len(bits) > 0:
                                 bitrange = bits[0]
-                                if bitrange.hasAttribute("LowBit") and bitrange.hasAttribute("HighBit"):
+                                if bitrange.hasAttribute(
+                                    "LowBit"
+                                ) and bitrange.hasAttribute("HighBit"):
                                     field_data["low_bit"] = bitrange.getAttribute(
-                                        "LowBit").strip()
+                                        "LowBit"
+                                    ).strip()
                                     field_data["high_bit"] = bitrange.getAttribute(
-                                        "HighBit").strip()
+                                        "HighBit"
+                                    ).strip()
                             # Process NonEnumerate types and units
                             # Populate types and units if not already present
                             non_enums = field.getElementsByTagName(
@@ -113,18 +138,23 @@ class GildaXml:
                                         units[unit] = id
                                 # Insert new parameter field into the database
                                 field_data["eng_name"] = ne.getAttribute(
-                                    "RefEngName").strip()
+                                    "RefEngName"
+                                ).strip()
                                 field_data["unit"] = units[unit]
                                 field_data["type"] = types[type]
                                 # Get optional limits for parameter
                                 dom = ne.getElementsByTagName("UsageDomain")
                                 if len(dom) > 0:
                                     usage = dom[0]
-                                    if usage.hasAttribute("Min") and usage.hasAttribute("Max"):
+                                    if usage.hasAttribute("Min") and usage.hasAttribute(
+                                        "Max"
+                                    ):
                                         field_data["min"] = usage.getAttribute(
-                                            'Min').strip()
+                                            "Min"
+                                        ).strip()
                                         field_data["max"] = usage.getAttribute(
-                                            'Max').strip()
+                                            "Max"
+                                        ).strip()
                                 # Finally insert the field
                                 self.database.insert_field(field_data)
 
@@ -134,7 +164,8 @@ class GildaXml:
                             if len(enums) > 0:
                                 if len(non_enums) > 0:
                                     raise ValueError(
-                                        f"Field '{field.getAttribute('Name')}' has both Enumerate and NonEnumerate definitions.")
+                                        f"Field '{field.getAttribute('Name')}' has both Enumerate and NonEnumerate definitions."
+                                    )
 
                                 field_data["unit"] = units["unitless"]
                                 field_data["type"] = types["enum"]
@@ -142,32 +173,48 @@ class GildaXml:
                                     field_data)
 
                                 for en in enums:
-                                    if en.hasAttribute("Value") and en.hasAttribute("Definition"):
+                                    if en.hasAttribute("Value") and en.hasAttribute(
+                                        "Definition"
+                                    ):
                                         definition = en.getAttribute(
-                                            "Definition").strip()
-                                        comment = en.getAttribute(
-                                            "Comments").strip() if en.hasAttribute("Comments") else ""
+                                            "Definition"
+                                        ).strip()
+                                        comment = (
+                                            en.getAttribute("Comments").strip()
+                                            if en.hasAttribute("Comments")
+                                            else ""
+                                        )
                                         if definition not in definitions:
                                             data = {
                                                 "definition": definition,
-                                                "comment": comment
+                                                "comment": comment,
                                             }
                                             # Insert new definition into the database
-                                            def_id = self.database.insert_enum_definition(
-                                                data)
+                                            def_id = (
+                                                self.database.insert_enum_definition(
+                                                    data
+                                                )
+                                            )
                                             definitions[definition] = def_id
                                         else:
                                             def_id = definitions[definition]
 
                                         # Validate that the enumeration value is a binary string
-                                        if self.is_binary_string(en.getAttribute("Value")) is False:
+                                        if (
+                                            self.is_binary_string(
+                                                en.getAttribute("Value")
+                                            )
+                                            is False
+                                        ):
                                             raise ValueError(
-                                                f"Enumerate value '{en.getAttribute('Value')}' in field '{field.getAttribute('Name')}' is not a valid binary string.")
+                                                f"Enumerate value '{en.getAttribute('Value')}' in field '{field.getAttribute('Name')}' is not a valid binary string."
+                                            )
                                         enum_value = {
                                             "field_id": field_id,
                                             "definition_id": def_id,
                                             "value": int(
-                                                en.getAttribute("Value"), base=2)
+                                                en.getAttribute("Value"), base=2
+                                            ),
                                         }
                                         self.database.insert_enum_value(
                                             enum_value)
@@ -210,7 +257,8 @@ class GildaChannelsXml(GildaXml):
                     ids = self.database.get_channel_source(equipment, mod_name)
                     if ids is None:
                         raise ValueError(
-                            f"Source equipment '{equipment}' or module '{mod_name}' not found in database.")
+                            f"Source equipment '{equipment}' or module '{mod_name}' not found in database."
+                        )
                     eq_id, mod_id = ids
                     # Each channel within a module is either from, to or between (inter) partitions
                     nodes = mod.getElementsByTagName("FromPartition")
