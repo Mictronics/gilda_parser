@@ -43,7 +43,6 @@ class GildaXml:
             return
         # Get static partition mapping from the database
         partitions = self.database.get_partitions()
-        equipments = self.database.get_equipment_list()
         types = self.database.get_types()
         units = self.database.get_units()
         definitions = self.database.get_enum_definitions()
@@ -51,43 +50,22 @@ class GildaXml:
         try:
             # Parse the XML file
             document = parse(file)
-            # Extract monitored data structures from equipment list
-            equipment_list = document.getElementsByTagName("EquipementList")
-            if len(equipment_list) > 0:
-                equipment_list = equipment_list[0].getElementsByTagName(
-                    "Equipement")
-            for equ in equipment_list:
-                eq_name = equ.getAttribute("Name")
-                eq_id = equipments[eq_name]
-                channels = equ.getElementsByTagName("Channel")
-                for ch in channels:
-                    ch_struct = ch.getAttribute("DataStructure")
-                    ch_id = ch.getAttribute("ID")
-                    ch_mp = int(ch.getAttribute("MonitorPoint"), 16)
-                    struct_data = {
-                        "name": ch_struct,
-                        "src_partition": None,
-                        "src_equipment": eq_id,
-                        "channel_id": ch_id,
-                        "monitor_point": ch_mp,
-                    }
-                    self.database.insert_structure_from_equipment(struct_data)
-
             # Extract structures and fields
             structures = document.getElementsByTagName("Structure")
             for struct in structures:
                 # Handle data structure
                 if struct.hasAttribute("EngName") and struct.hasAttribute("EmittedByPartition"):
-                    eng_name = struct.getAttribute("EngName")
+                    eng_name = struct.getAttribute("EngName").strip()
                     src_partition = partitions[struct.getAttribute(
                         "EmittedByPartition")]
                     struct_data = {
                         "name": eng_name,
                         "src_partition": src_partition,
-                        "src_equipment": None,
                         "channel_id": None,
-                        "monitor_point": None,
                     }
+                    ch_id = self.database.get_channel_id(eng_name)
+                    if ch_id is not None:
+                        struct_data["channel_id"] = ch_id
                     struct_id = self.database.insert_structure(struct_data)
                     # Handle fields associated with the structure
                     fields = struct.getElementsByTagName("Field")
@@ -112,30 +90,30 @@ class GildaXml:
                                 bitrange = bits[0]
                                 if bitrange.hasAttribute("LowBit") and bitrange.hasAttribute("HighBit"):
                                     field_data["low_bit"] = bitrange.getAttribute(
-                                        "LowBit")
+                                        "LowBit").strip()
                                     field_data["high_bit"] = bitrange.getAttribute(
-                                        "HighBit")
+                                        "HighBit").strip()
                             # Process NonEnumerate types and units
                             # Populate types and units if not already present
                             non_enums = field.getElementsByTagName(
                                 "NonEnumerate")
                             for ne in non_enums:
                                 if ne.hasAttribute("Type"):
-                                    type = ne.getAttribute("Type")
+                                    type = ne.getAttribute("Type").strip()
                                     if type not in types:
                                         # Insert new type into the database
                                         id = self.database.insert_type(type)
                                         types[type] = id
 
                                 if ne.hasAttribute("Unit"):
-                                    unit = ne.getAttribute("Unit")
+                                    unit = ne.getAttribute("Unit").strip()
                                     if unit not in units:
                                         # Insert new unit into the database
                                         id = self.database.insert_unit(unit)
                                         units[unit] = id
                                 # Insert new parameter field into the database
                                 field_data["eng_name"] = ne.getAttribute(
-                                    "RefEngName")
+                                    "RefEngName").strip()
                                 field_data["unit"] = units[unit]
                                 field_data["type"] = types[type]
                                 # Get optional limits for parameter
@@ -144,9 +122,9 @@ class GildaXml:
                                     usage = dom[0]
                                     if usage.hasAttribute("Min") and usage.hasAttribute("Max"):
                                         field_data["min"] = usage.getAttribute(
-                                            'Min')
+                                            'Min').strip()
                                         field_data["max"] = usage.getAttribute(
-                                            'Max')
+                                            'Max').strip()
                                 # Finally insert the field
                                 self.database.insert_field(field_data)
 
@@ -166,9 +144,9 @@ class GildaXml:
                                 for en in enums:
                                     if en.hasAttribute("Value") and en.hasAttribute("Definition"):
                                         definition = en.getAttribute(
-                                            "Definition")
+                                            "Definition").strip()
                                         comment = en.getAttribute(
-                                            "Comments") if en.hasAttribute("Comments") else ""
+                                            "Comments").strip() if en.hasAttribute("Comments") else ""
                                         if definition not in definitions:
                                             data = {
                                                 "definition": definition,
@@ -193,6 +171,9 @@ class GildaXml:
                                         }
                                         self.database.insert_enum_value(
                                             enum_value)
+
+            if self.database.foreign_key_check() > 0:
+                raise ValueError("Error in foreign key relation!")
 
         except Exception as e:
             print(f"Error in '{file}': {e}")
@@ -241,20 +222,19 @@ class GildaChannelsXml(GildaXml):
                         desc = node.getAttribute("Description")
                         direction = directions[node.tagName.replace(
                             "Partition", "")]
-                        ds_id = None
-                        if desc != "":
-                            ds_id = self.database.get_structure_id(desc)
 
                         channel_data = {
                             "id": ch,
                             "equipment": eq_id,
                             "module": mod_id,
                             "direction": direction,
-                            "data_structure": ds_id,
                             "desc": desc,
                         }
                         # print(channel_data)
                         self.database.insert_channel(channel_data)
+
+            if self.database.foreign_key_check() > 0:
+                raise ValueError("Error in foreign key relation!")
 
         except Exception as e:
             print(f"Error in '{file}': {e}")
