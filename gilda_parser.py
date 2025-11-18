@@ -25,6 +25,7 @@ from pathlib import Path
 from rich.progress import Progress, MofNCompleteColumn
 from database import Database
 from gilda_xml import GildaChannelsXml, GildaXml
+from gilda_arinc import GildaArinc
 
 __author__ = "Michael Wolf aka Mictronics"
 __copyright__ = "2025, (C) Michael Wolf"
@@ -69,6 +70,14 @@ def initArgParser(parser=None):
             help="Insert or update existing data structures. Mandatory with empty database.",
             action="store_true",
             default=False,
+        )
+
+        parser.add_argument(
+            "-a",
+            "--arinc",
+            metavar="ARINC_CONFIGURATION_FILE",
+            help="Parse additional ARINC Fido definition and insert them into the database.",
+            dest="arinc_conf",
         )
 
         parser.set_defaults(deprecated=None)
@@ -133,7 +142,7 @@ def main():
         total = 0
         # First need the channels before processing channel XML files
         # Found channel IDs will be assigned to existing data structures
-        ch_task = progress.add_task("[green]Channels ", total=0)
+        ch_task = progress.add_task("[green]Channels", total=total)
         for root, _dirs, files in os.walk(args.input):
             total += len(files)
             progress.update(ch_task, total=total)
@@ -147,11 +156,8 @@ def main():
 
         # Process GILDA XML files from input path
         # Walk through the input directory and find XML files
-        total = 0
-        xml_task = progress.add_task("[red]XML ", total=0)
+        xml_task = progress.add_task("[red]XML", total=total)
         for root, _dirs, files in os.walk(args.input):
-            total += len(files)
-            progress.update(xml_task, total=total)
             for file in files:
                 progress.update(xml_task, advance=1)
                 if file.endswith((".XML", ".xml")):
@@ -159,6 +165,17 @@ def main():
                     with GildaXml(args.output, args.structures) as xml:
                         xml.parse(file_path)
         progress.remove_task(xml_task)
+
+        if args.arinc_conf is not None:
+            arinc_task = progress.add_task("[blue]ARINC", total=total)
+            for root, _dirs, files in os.walk(args.input):
+                for file in files:
+                    progress.update(arinc_task, advance=1)
+                    if file == args.arinc_conf:
+                        file_path = os.path.join(root, file)
+                        with GildaArinc(args.output) as arinc:
+                            arinc.parse(file_path)
+            progress.remove_task(arinc_task)
 
     sys.exit(0)  # Exit the program
 

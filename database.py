@@ -24,8 +24,7 @@ class Database:
     def __init__(self, database_path):
         # Connect to database
         try:
-            self.database = sqlite3.connect(
-                database_path, isolation_level="DEFERRED")
+            self.database = sqlite3.connect(database_path, isolation_level="DEFERRED")
             self.cursor = self.database.cursor()
             self.database.execute("PRAGMA journal_mode = TRUNCATE;")
             self.database.execute("PRAGMA foreign_keys = ON;")
@@ -81,14 +80,14 @@ class Database:
         self.database.commit()
         # Retrieve the ID of the inserted structure
         row = self.cursor.execute(
-            "SELECT Id FROM DataStructures WHERE EngName = ?;", [data["name"]])
+            "SELECT Id FROM DataStructures WHERE EngName = ?;", [data["name"]]
+        )
         return row.fetchone()[0]
 
     def insert_type(self, type):
         """Insert parameter types into the database."""
         self.cursor.execute(
-            "INSERT OR IGNORE INTO ParameterTypes (Type) VALUES (:type);", [
-                type]
+            "INSERT OR IGNORE INTO ParameterTypes (Type) VALUES (:type);", [type]
         )
         self.database.commit()
         # Retrieve the ID of the inserted type
@@ -105,8 +104,7 @@ class Database:
     def insert_unit(self, unit):
         """Insert parameter unit into the database."""
         self.cursor.execute(
-            "INSERT OR IGNORE INTO ParameterUnits (Unit) VALUES (:unit);", [
-                unit]
+            "INSERT OR IGNORE INTO ParameterUnits (Unit) VALUES (:unit);", [unit]
         )
         self.database.commit()
         # Retrieve the ID of the inserted unit
@@ -229,6 +227,35 @@ class Database:
         if result is not None:
             return result[0]
         return None
+
+    def get_fifo_parameter_fields(self):
+        """Retrieve ARINC related parameter fields from the database."""
+        row = self.cursor.execute("SELECT * FROM ViewFifoParameterFields;")
+        return {
+            r[1]: {"parameter_field_id": r[0], "fido_file": ""} for r in row.fetchall()
+        }
+
+    def insert_arinc_parameter(self, data):
+        """Insert ARINC parameter into the database."""
+        self.cursor.execute(
+            """INSERT INTO ParameterArinc
+             (ParameterFieldsId, Label, Name, Description, Type, Offset, Length, Unit, Min, Max, ScaleFactor)
+             VALUES
+             (:parameter_field_id, :label, :name, :desc, :type, :offset, :length, :unit, :min, :max, :scale)
+             ON CONFLICT(Label, Name, ParameterFieldsId)
+             DO UPDATE SET
+             Description = :desc,
+             Type = :type,
+             Offset = :offset,
+             Length = :length,
+             Unit = :unit,
+             Min = :min,
+             Max = :max,
+             ScaleFactor = :scale
+             WHERE Label = :label AND Name = :name AND ParameterFieldsId = :parameter_field_id;""",
+            data,
+        )
+        self.database.commit()
 
     def foreign_key_check(self) -> int:
         """
