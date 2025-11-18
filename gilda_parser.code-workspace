@@ -6,7 +6,7 @@
   ],
   "settings": {
     "python-env.workspaceSearchPaths": [".venv"],
-    "editor.defaultFormatter": "ms-python.autopep8",
+    "editor.defaultFormatter": "trunk.io",
     "editor.formatOnSave": true,
     "python.analysis.typeCheckingMode": "basic"
   }
