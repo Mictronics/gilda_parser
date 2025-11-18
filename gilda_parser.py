@@ -22,6 +22,7 @@ import os
 import signal
 import sys
 from pathlib import Path
+from rich.progress import Progress, MofNCompleteColumn
 from database import Database
 from gilda_xml import GildaChannelsXml, GildaXml
 
@@ -128,23 +129,36 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    # First need the channels before processing channel XML files
-    # Found channel IDs will be assigned to existing data structures
-    for root, _dirs, files in os.walk(args.input):
-        for file in files:
-            if file.lower() == "channels.xml":
-                file_path = os.path.join(root, file)
-                with GildaChannelsXml(args.output) as xml:
-                    xml.parse(file_path)
+    with Progress(*Progress.get_default_columns(), MofNCompleteColumn(), transient=True) as progress:
+        total = 0
+        # First need the channels before processing channel XML files
+        # Found channel IDs will be assigned to existing data structures
+        ch_task = progress.add_task("[green]Channels ", total=0)
+        for root, _dirs, files in os.walk(args.input):
+            total += len(files)
+            progress.update(ch_task, total=total)
+            for file in files:
+                progress.update(ch_task, advance=1)
+                if file.lower() == "channels.xml":
+                    file_path = os.path.join(root, file)
+                    with GildaChannelsXml(args.output) as xml:
+                        xml.parse(file_path)
+        progress.remove_task(ch_task)
 
-    # Process GILDA XML files from input path
-    # Walk through the input directory and find XML files
-    for root, _dirs, files in os.walk(args.input):
-        for file in files:
-            if file.endswith((".XML", ".xml")):
-                file_path = os.path.join(root, file)
-                with GildaXml(args.output, args.structures) as xml:
-                    xml.parse(file_path)
+        # Process GILDA XML files from input path
+        # Walk through the input directory and find XML files
+        total = 0
+        xml_task = progress.add_task("[red]XML ", total=0)
+        for root, _dirs, files in os.walk(args.input):
+            total += len(files)
+            progress.update(xml_task, total=total)
+            for file in files:
+                progress.update(xml_task, advance=1)
+                if file.endswith((".XML", ".xml")):
+                    file_path = os.path.join(root, file)
+                    with GildaXml(args.output, args.structures) as xml:
+                        xml.parse(file_path)
+        progress.remove_task(xml_task)
 
     sys.exit(0)  # Exit the program
 
