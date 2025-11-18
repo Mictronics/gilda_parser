@@ -13,6 +13,19 @@
       "args": ["./gilda/1004", "./output/database_v1004.sqlite"]
     },
     {
+      "name": "ARINC",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/gilda_parser.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--arinc",
+        "ARINC.conf",
+        "./gilda/1004",
+        "./output/database_v1004.sqlite"
+      ]
+    },
+    {
       "name": "Create",
       "type": "debugpy",
       "request": "launch",
