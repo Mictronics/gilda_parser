@@ -6,7 +6,6 @@ CREATE TABLE "DataStructures" (
 	"SourcePartition"	INTEGER,
 	"Channel"	INTEGER,
 	PRIMARY KEY("Id" AUTOINCREMENT),
-	FOREIGN KEY("Channel") REFERENCES "Channels"("Id"),
 	FOREIGN KEY("SourcePartition") REFERENCES "PartitionList"("Id")
 );
 DROP TABLE IF EXISTS "EthernetDefinitionList";
