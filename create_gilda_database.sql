@@ -5,7 +5,7 @@ CREATE TABLE "DataStructures" (
 	"EngName"	TEXT NOT NULL UNIQUE,
 	"SourcePartition"	INTEGER,
 	"Channel"	INTEGER,
-	PRIMARY KEY("Id" AUTOINCREMENT),
+	PRIMARY KEY("Id"),
 	FOREIGN KEY("SourcePartition") REFERENCES "PartitionList"("Id")
 );
 DROP TABLE IF EXISTS "EthernetDefinitionList";
@@ -36,7 +36,7 @@ CREATE TABLE "ParameterEnumDefinitions" (
 	"Id"	INTEGER NOT NULL,
 	"Definition"	TEXT NOT NULL UNIQUE,
 	"Comment"	TEXT,
-	PRIMARY KEY("Id" AUTOINCREMENT) ON CONFLICT IGNORE
+	PRIMARY KEY("Id") ON CONFLICT IGNORE
 );
 DROP TABLE IF EXISTS "ParameterEnumValues";
 CREATE TABLE "ParameterEnumValues" (
@@ -64,7 +64,7 @@ CREATE TABLE "ParameterFields" (
 	"LowBit"	INTEGER,
 	"HighBit"	INTEGER,
 	"Comment"	TEXT,
-	PRIMARY KEY("Id" AUTOINCREMENT),
+	PRIMARY KEY("Id"),
 	FOREIGN KEY("DataStructure") REFERENCES "DataStructures"("Id"),
 	FOREIGN KEY("SourcePartition") REFERENCES "PartitionList"("Id"),
 	FOREIGN KEY("Type") REFERENCES "ParameterTypes"("Id"),
@@ -74,19 +74,19 @@ DROP TABLE IF EXISTS "ParameterTypes";
 CREATE TABLE "ParameterTypes" (
 	"Id"	INTEGER NOT NULL,
 	"Type"	TEXT NOT NULL UNIQUE,
-	PRIMARY KEY("Id" AUTOINCREMENT) ON CONFLICT IGNORE
+	PRIMARY KEY("Id") ON CONFLICT IGNORE
 );
 DROP TABLE IF EXISTS "ParameterUnits";
 CREATE TABLE "ParameterUnits" (
 	"Id"	INTEGER NOT NULL,
 	"Unit"	TEXT NOT NULL UNIQUE,
-	PRIMARY KEY("Id" AUTOINCREMENT) ON CONFLICT IGNORE
+	PRIMARY KEY("Id") ON CONFLICT IGNORE
 );
 DROP TABLE IF EXISTS "PartitionList";
 CREATE TABLE "PartitionList" (
 	"Id"	INTEGER NOT NULL,
 	"Name"	INTEGER NOT NULL UNIQUE,
-	PRIMARY KEY("Id" AUTOINCREMENT)
+	PRIMARY KEY("Id")
 );
 DROP TABLE IF EXISTS "ChannelDirection";
 CREATE TABLE "ChannelDirection" (
