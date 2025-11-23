@@ -124,6 +124,16 @@ CREATE TABLE "ParameterArinc" (
 	FOREIGN KEY("Type") REFERENCES "ParameterTypes"("Id"),
 	FOREIGN KEY("Unit") REFERENCES "ParameterUnits"("Id")
 );
+DROP TABLE IF EXISTS "ArincDiscretes";
+CREATE TABLE "ArincDiscretes" (
+	"Value"	INTEGER NOT NULL,
+	"Name"	TEXT NOT NULL,
+	"Label"	INTEGER NOT NULL,
+	"Offset"	INTEGER NOT NULL,
+	"ParameterFieldsId"	INTEGER NOT NULL,
+	PRIMARY KEY("Value","Name","Label","Offset","ParameterFieldsId"),
+	FOREIGN KEY("ParameterFieldsId") REFERENCES "ParameterFields"("Id")
+)
 INSERT INTO "Equipments" VALUES (1,'AMC');
 INSERT INTO "Equipments" VALUES (2,'MFD');
 INSERT INTO "Equipments" VALUES (3,'DTD');
@@ -266,4 +276,14 @@ FROM ParameterArinc pa
 LEFT JOIN ParameterFields pf ON pa.ParameterFieldsId = pf.Id
 LEFT JOIN ParameterTypes pt ON pa.Type = pt.Id
 LEFT JOIN ParameterUnits pu ON pa.Unit = pu.Id;
+DROP VIEW IF EXISTS ViewArincDiscretes;
+CREATE VIEW ViewArincDiscretes AS
+SELECT
+  ad.Value AS Value,
+  ad.Name AS Name,
+  ad.Label AS Label,
+  ad.Offset AS Offset,
+  pf.RefEngName AS ParameterFieldName,
+FROM ArincDiscretes ad
+LEFT JOIN ParameterFields pf ON ad.ParameterFieldsId = pf.Id
 COMMIT;

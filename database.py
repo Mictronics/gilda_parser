@@ -24,7 +24,8 @@ class Database:
     def __init__(self, database_path):
         # Connect to database
         try:
-            self.database = sqlite3.connect(database_path, isolation_level="DEFERRED")
+            self.database = sqlite3.connect(
+                database_path, isolation_level="DEFERRED")
             self.cursor = self.database.cursor()
             self.database.execute("PRAGMA journal_mode = TRUNCATE;")
             self.database.execute("PRAGMA foreign_keys = ON;")
@@ -87,7 +88,8 @@ class Database:
     def insert_type(self, type):
         """Insert parameter types into the database."""
         self.cursor.execute(
-            "INSERT OR IGNORE INTO ParameterTypes (Type) VALUES (:type);", [type]
+            "INSERT OR IGNORE INTO ParameterTypes (Type) VALUES (:type);", [
+                type]
         )
         self.database.commit()
         # Retrieve the ID of the inserted type
@@ -104,7 +106,8 @@ class Database:
     def insert_unit(self, unit):
         """Insert parameter unit into the database."""
         self.cursor.execute(
-            "INSERT OR IGNORE INTO ParameterUnits (Unit) VALUES (:unit);", [unit]
+            "INSERT OR IGNORE INTO ParameterUnits (Unit) VALUES (:unit);", [
+                unit]
         )
         self.database.commit()
         # Retrieve the ID of the inserted unit
@@ -253,6 +256,17 @@ class Database:
              Max = :max,
              ScaleFactor = :scale
              WHERE Label = :label AND Name = :name AND ParameterFieldsId = :parameter_field_id;""",
+            data,
+        )
+        self.database.commit()
+
+    def insert_arinc_discretes(self, data):
+        """Insert ARINC discretes into the database."""
+        self.cursor.execute(
+            """INSERT OR IGNORE INTO ArincDiscretes
+             (Value, Name, Label, Offset, ParameterFieldsId)
+             VALUES
+             (:value, :name, :label, :offset, :parameter_field_id);""",
             data,
         )
         self.database.commit()

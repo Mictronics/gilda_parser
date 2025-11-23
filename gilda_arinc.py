@@ -13,7 +13,7 @@
 # along with GILDA parser. If not, see http://www.gnu.org/licenses/.
 #
 import os
-
+import re
 from database import Database
 
 
@@ -30,6 +30,10 @@ class GildaArinc:
     def __exit__(self, exc_type, exc_val, exc_tb):
         # Close database connection
         self.database.close()
+
+    def is_binary_string(self, s):
+        """Check if a string is a binary representation (only '0' and '1')."""
+        return set(s).issubset({"0", "1"})
 
     def parse(self, arinc_conf: str):
         """Parse a GILDA ARINC Fido configuration and insert data into the database."""
@@ -48,6 +52,7 @@ class GildaArinc:
             "TOR": "bool",
             "BNR": "binary",
         }
+
         try:
             # Read ARINC configuration file
             with open(arinc_conf, "r", encoding="utf-8", errors="replace") as f:
@@ -67,7 +72,9 @@ class GildaArinc:
                     continue
                 try:
                     with open(os.path.join(path, file["fido_file"]), "r", encoding="utf-8", errors="replace") as fido:
+                        # Label and offset are needed for linking ARINC discrete values to parameter
                         label = None
+                        offset = None
                         for line in fido:
                             # Check for begin of ARINC parameter definition
                             parts = line.strip().split("!")
@@ -76,10 +83,13 @@ class GildaArinc:
                                 continue
 
                             if line.startswith("*") and parts[9] != "":
+                                # Store ARINC label if we got a new definition
                                 label = int(parts[3])
 
                             if parts[9] != "":
+                                # Handle parameter definitions within a label
                                 if parts[11] != "":
+                                    # Parameters should always have a type, except it's a discrete definition
                                     type = arinc_type_to_db_type.get(
                                         parts[11])
                                     if type is None:
@@ -93,6 +103,7 @@ class GildaArinc:
                                         types[type] = id
 
                                 if parts[14] != "":
+                                    # We may also have a parameter unit
                                     unit = parts[14]
                                     if unit == "S.U.":
                                         unit = "unitless"
@@ -106,6 +117,8 @@ class GildaArinc:
                                 if label is None:
                                     raise ValueError(
                                         f"Parameter name or label missing: {parts[10]}")
+                                # Remember the offset for linking discrete definitions to a parameter
+                                offset = int(parts[13])
                                 arinc_data = {
                                     "parameter_field_id": file["parameter_field_id"],
                                     "name": parts[9],
@@ -114,13 +127,32 @@ class GildaArinc:
                                     "unit": units[unit],
                                     "desc": parts[10],
                                     "length": int(parts[12]),
-                                    "offset": int(parts[13]),
+                                    "offset": offset,
                                     "min": float(min_max[0]),
                                     "max": float(min_max[1]),
                                     "scale": float(parts[16]),
                                 }
+                                # Store new ARINC parameter in database
                                 self.database.insert_arinc_parameter(
                                     arinc_data)
+                            # Handle ARINC discrete definition
+                            # Fido field 10 is the only non-empty field.
+                            elif parts[3] == "" and parts[10] != "":
+                                # Separate the value in binary representation from its name
+                                rgx = r"(?P<value>[01]+) (?P<name>.*)"
+                                value, name = re.findall(
+                                    rgx, parts[10], re.MULTILINE)[0]
+                                # Ensure the value is in binary representation
+                                if self.is_binary_string(value):
+                                    # Convert to integer and store in database
+                                    value = int(value, base=2)
+                                    self.database.insert_arinc_discretes(
+                                        {"value": value,
+                                         "name": name,
+                                         "label": label,
+                                         "offset": offset,
+                                         "parameter_field_id": file["parameter_field_id"]
+                                         })
 
                 except Exception as e:
                     print(f"Error parsing FIDO file {file["fido_file"]}: {e}")
