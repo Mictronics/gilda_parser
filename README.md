@@ -18,14 +18,20 @@ Convert Gilda files into database `~/gilda_parser/gilda_parser.py ./gilda/1004 .
 
 ```bash
 $ python3 gilda_parser.py -h
+Input path and output database must be specified.
+usage: gilda_parser [-h] [--create DATABASE] [-s] [-a ARINC_CONFIGURATION_FILE] [--version] [input] [output]
+
+Read and parse GILDA export XML files into SQLite database.
+
 positional arguments:
-  input              Input path that contains GILDA export XML files.
-  output             Output SQLite database file, including path.
+  input                 Input path that contains GILDA export XML files.
+  output                Output SQLite database file, including path.
 
 options:
-  -h, --help         show this help message and exit
-  --create DATABASE  Create a new database, overwriting existing files.
-  --version          show program's version number and exit
-
-License GPL-3+ (C) 2025 Michael Wolf, www.mictronics.de
+  -h, --help            show this help message and exit
+  --create DATABASE     Create a new database, overwriting existing files.
+  -s, --structures      Insert or update existing data structures. Mandatory with empty database.
+  -a ARINC_CONFIGURATION_FILE, --arinc ARINC_CONFIGURATION_FILE
+                        Parse additional ARINC Fido definition and insert them into the database.
+  --version             show program's version number and exit
 ```
