@@ -1,0 +1,76 @@
+digraph "database_scheme.sql" {
+	rankdir = "LR"
+	"ArincDiscretes" [
+		label = "ArincDiscretes | <Value> Value | <Name> Name | <Label> Label | <Offset> Offset | <ParameterFieldsId> ParameterFieldsId"
+		shape = "Mrecord"
+	];
+	"ArincDiscretes":ParameterFieldsId -> "ParameterFields":Id;
+	"ChannelDirection" [
+		label = "ChannelDirection | <Id> Id | <Direction> Direction"
+		shape = "Mrecord"
+	];
+	"Channels":Direction -> "ChannelDirection":Id;
+	"Channels":Equipment -> "EthernetDefinitionList":Id;
+	"Channels":Module -> "Modules":Id;
+	"Channels" [
+		label = "Channels | <Id> Id | <Equipment> Equipment | <Module> Module | <Direction> Direction | <Description> Description"
+		shape = "Mrecord"
+	];
+	"DataStructures":SourcePartition -> "PartitionList":Id;
+    "DataStructures":Channel -> "Channels":Id;
+	"DataStructures" [
+		label = "DataStructures | <Id> Id | <EngName> EngName | <SourcePartition> SourcePartition | <Channel> Channel"
+		shape = "Mrecord"
+	];
+	"Equipments" [
+		label = "Equipments | <Id> Id | <Name> Name"
+		shape = "Mrecord"
+	];
+	"EthernetDefinitionList":Equipment -> "Equipments":Id;
+	"EthernetDefinitionList":Module -> "Modules":Id;
+	"EthernetDefinitionList" [
+		label = "EthernetDefinitionList | <Id> Id | <Name> Name | <Ethernet> Ethernet | <Equipment> Equipment | <Module> Module"
+		shape = "Mrecord"
+	];
+	"Modules" [
+		label = "Modules | <Id> Id | <Name> Name"
+		shape = "Mrecord"
+	];
+	"ParameterArinc":ParameterFieldsId -> "ParameterFields":Id;
+	"ParameterArinc":Type -> "ParameterTypes":Id;
+	"ParameterArinc":Unit -> "ParameterUnits":Id;
+	"ParameterArinc" [
+		label = "ParameterArinc | <Label> Label | <Name> Name | <Description> Description | <ParameterFieldsId> ParameterFieldsId | <Type> Type | <Offset> Offset | <Length> Length | <Unit> Unit | <Min> Min | <Max> Max | <ScaleFactor> ScaleFactor"
+		shape = "Mrecord"
+	];
+	"ParameterEnumDefinitions" [
+		label = "ParameterEnumDefinitions | <Id> Id | <Definition> Definition | <Comment> Comment"
+		shape = "Mrecord"
+	];
+	"ParameterEnumValues":Definition -> "ParameterEnumDefinitions":Id;
+	"ParameterEnumValues":ParameterField -> "ParameterFields":Id;
+	"ParameterEnumValues" [
+		label = "ParameterEnumValues | <ParameterField> ParameterField | <Value> Value | <Definition> Definition"
+		shape = "Mrecord"
+	];
+	"ParameterFields":DataStructure -> "DataStructures":Id;
+	"ParameterFields":SourcePartition -> "PartitionList":Id;
+	"ParameterFields":Type -> "ParameterTypes":Id;
+	"ParameterFields":Unit -> "ParameterUnits":Id;
+	"ParameterFields" [
+		label = "ParameterFields | <Id> Id | <Name> Name | <RefEngName> RefEngName | <Size> Size | <Offset> Offset | <Type> Type | <SourcePartition> SourcePartition | <DataStructure> DataStructure | <Unit> Unit | <Description> Description | <Min> Min | <Max> Max | <LowBit> LowBit | <HighBit> HighBit | <Comment> Comment"
+		shape = "Mrecord"
+	];
+	"ParameterTypes" [
+		label = "ParameterTypes | <Id> Id | <Type> Type"
+		shape = "Mrecord"
+	];
+	"ParameterUnits" [
+		label = "ParameterUnits | <Id> Id | <Unit> Unit"
+		shape = "Mrecord"
+	];
+	"PartitionList" [
+		label = "PartitionList | <Id> Id | <Name> Name"
+		shape = "Mrecord"
+	];
+}
