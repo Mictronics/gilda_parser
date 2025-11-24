@@ -133,7 +133,7 @@ CREATE TABLE "ArincDiscretes" (
 	"ParameterFieldsId"	INTEGER NOT NULL,
 	PRIMARY KEY("Value","Name","Label","Offset","ParameterFieldsId"),
 	FOREIGN KEY("ParameterFieldsId") REFERENCES "ParameterFields"("Id")
-)
+);
 INSERT INTO "Equipments" VALUES (1,'AMC');
 INSERT INTO "Equipments" VALUES (2,'MFD');
 INSERT INTO "Equipments" VALUES (3,'DTD');
@@ -283,7 +283,7 @@ SELECT
   ad.Name AS Name,
   ad.Label AS Label,
   ad.Offset AS Offset,
-  pf.RefEngName AS ParameterFieldName,
+  pf.RefEngName AS ParameterFieldName
 FROM ArincDiscretes ad
-LEFT JOIN ParameterFields pf ON ad.ParameterFieldsId = pf.Id
+LEFT JOIN ParameterFields pf ON ad.ParameterFieldsId = pf.Id;
 COMMIT;
