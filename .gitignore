@@ -1,4 +1,4 @@
-__pycache__/*
+**/__pycache__/
 gilda/*
 .venv/*
 __init__.py
