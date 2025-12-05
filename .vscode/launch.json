@@ -32,6 +32,14 @@
       "program": "${workspaceFolder}/gilda_parser.py",
       "console": "integratedTerminal",
       "args": ["--create", "./output/database_v1004.sqlite"]
+    },
+    {
+      "name": "Viewer",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/gilda_viewer.py",
+      "console": "integratedTerminal",
+      "args": ["${workspaceFolder}/output"]
     }
   ]
 }
