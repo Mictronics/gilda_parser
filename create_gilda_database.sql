@@ -286,4 +286,12 @@ SELECT
   pf.RefEngName AS ParameterFieldName
 FROM ArincDiscretes ad
 LEFT JOIN ParameterFields pf ON ad.ParameterFieldsId = pf.Id;
+DROP VIEW IF EXISTS ViewDataStructures;
+CREATE VIEW ViewDataStructures AS
+SELECT
+  ds.EngName AS EngineeringName,
+  pl.Name AS SourcePartition,
+  ds.Channel AS Channel
+FROM DataStructures ds
+LEFT JOIN PartitionList pl ON ds.SourcePartition = pl.Id;
 COMMIT;
