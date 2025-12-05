@@ -8,6 +8,14 @@ Clone repository: `git clone https://github.com/Mictronics/gilda_parser`.
 
 Create Python environment `python3 -m venv ~/gilda_parser/.venv`.
 
+## Dependencies
+
+Install Python requirements with `pip install -r requirements.txt`
+
+The GILDA viewer frontend development requires NodeJS, NPM and Vue CLI to be installed globally.
+* NodeJs and NPM see [https://nodejs.org/en/download](https://nodejs.org/en/download)
+* Install Vue CLI `npm install -g @vue/cli`
+
 ## Run
 
 Activate Python environment `source ~/gilda_parser/.venv/bin/activate`
