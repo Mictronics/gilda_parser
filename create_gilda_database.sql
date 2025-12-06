@@ -249,7 +249,8 @@ SELECT
   pf.Max AS Max,
   pf.LowBit AS LowBit,
   pf.HighBit AS HighBit,
-  pf.Comment AS Comment
+  pf.Comment AS Comment,
+  ds.Id AS DataStructureId
 FROM ParameterFields pf
 LEFT JOIN ParameterTypes pt ON pf.Type = pt.Id
 LEFT JOIN ParameterUnits pu ON pf.Unit = pu.Id
