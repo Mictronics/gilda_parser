@@ -51,30 +51,32 @@
               </div>
               <div class="col">
                 <table class="text-xs font-light">
-                  <tr>
-                    <td>Offset:</td>
-                    <td>{{ data.offset }}</td>
-                    <td class="pl-2">Size:</td>
-                    <td>{{ data.size }}</td>
-                  </tr>
-                  <tr>
-                    <td>Type:</td>
-                    <td>{{ data.type }}</td>
-                    <td class="pl-2">Unit:</td>
-                    <td v-if="data.unit != 'unitless'">{{ data.unit }}</td>
-                  </tr>
-                  <tr>
-                    <td>Min:</td>
-                    <td>{{ data.min }}</td>
-                    <td class="pl-2">Max:</td>
-                    <td>{{ data.max }}</td>
-                  </tr>
-                  <tr>
-                    <td>Low Bit:</td>
-                    <td>{{ data.lowBit }}</td>
-                    <td class="pl-2">High Bit:</td>
-                    <td>{{ data.hiBit }}</td>
-                  </tr>
+                  <tbody>
+                    <tr>
+                      <td>Offset:</td>
+                      <td>{{ data.offset }}</td>
+                      <td class="pl-2">Size:</td>
+                      <td>{{ data.size }}</td>
+                    </tr>
+                    <tr>
+                      <td>Type:</td>
+                      <td>{{ data.type }}</td>
+                      <td class="pl-2">Unit:</td>
+                      <td v-if="data.unit != 'unitless'">{{ data.unit }}</td>
+                    </tr>
+                    <tr>
+                      <td>Min:</td>
+                      <td>{{ data.min }}</td>
+                      <td class="pl-2">Max:</td>
+                      <td>{{ data.max }}</td>
+                    </tr>
+                    <tr>
+                      <td>Low Bit:</td>
+                      <td>{{ data.lowBit }}</td>
+                      <td class="pl-2">High Bit:</td>
+                      <td>{{ data.hiBit }}</td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
             </div>

@@ -1,13 +1,15 @@
 <template>
   <Dialog v-model:visible="visible" v-bind:header="name">
-    <table class="grouped" v-for="e in data" :key="e.value">
-      <tr>
-        <td class="pr-2 pb-2">{{ e.value }}</td>
-        <td class="pr-2 pb-2">{{ e.definition }}</td>
-        <td v-if="e.comment" class="pb-2 text.xs font-light">
-          {{ e.comment }}
-        </td>
-      </tr>
+    <table class="grouped">
+      <tbody>
+        <tr v-for="e in data" :key="e.value">
+          <td class="pr-2 pb-2">{{ e.value }}</td>
+          <td class="pr-2 pb-2">{{ e.definition }}</td>
+          <td v-if="e.comment" class="pb-2 text.xs font-light">
+            {{ e.comment }}
+          </td>
+        </tr>
+      </tbody>
     </table>
   </Dialog>
 </template>
