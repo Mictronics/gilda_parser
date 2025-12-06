@@ -40,7 +40,9 @@
       "vue/multi-word-component-names": "off",
       "no-undef": "off",
       "no-prototype-builtins": "off",
-      "no-cond-assign": "off"
+      "no-cond-assign": "off",
+      "no-unused-vars": "off",
+      "no-empty": "off"
     }
   },
   "browserslist": [
