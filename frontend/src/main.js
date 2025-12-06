@@ -12,6 +12,7 @@ import Column from 'primevue/column';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import InputText from 'primevue/inputtext';
+import Dialog from 'primevue/dialog';
 import Toast from 'primevue/toast';
 import ToastService from 'primevue/toastservice';
 
@@ -33,4 +34,5 @@ app.component('Column', Column);
 app.component('IconField', IconField);
 app.component('InputIcon', InputIcon);
 app.component('InputText', InputText);
+app.component('Dialog', Dialog);
 app.mount('#app');
