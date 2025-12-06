@@ -40,6 +40,7 @@
     <ParameterFields
       v-if="loadedDatabase && parameterFields.length !== 0"
       :data="parameterFields"
+      :sourceDataStructure="selectedDataStructure"
       @loadEnumValues="onLoadEnumValues"
     />
     <EnumDialog :data="enumValues" ref="enumDialog" />
@@ -62,6 +63,7 @@ export default {
       listDatabases: [],
       loadedDatabase: '',
       selectedDatabase: '',
+      selectedDataStructure: '',
       isDarkMode: document.documentElement.classList.contains('my-app-dark')
     };
   },
@@ -110,8 +112,9 @@ export default {
         });
     },
     // Load parameter fields for a specific data structure ID
-    onLoadDataStructure(id) {
+    onLoadDataStructure(id, name) {
       this.$refs.enumDialog.setVisible(false);
+      this.selectedDataStructure = name;
       fetch('/api/v1/datastructures', {
         method: 'PUT',
         headers: {

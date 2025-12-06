@@ -31,7 +31,7 @@
           <Button
             :label="data.name"
             variant="link"
-            @click="onDataStructureClick(data.id, $event)"
+            @click="onDataStructureClick(data.id, data.name, $event)"
           />
         </template>
         <template #filter="{ filterModel, filterCallback }">
@@ -86,8 +86,8 @@ export default {
     };
   },
   methods: {
-    onDataStructureClick(id, ev) {
-      this.$emit('loadDataStructure', id);
+    onDataStructureClick(id, name, ev) {
+      this.$emit('loadDataStructure', id, name);
     }
   }
 };

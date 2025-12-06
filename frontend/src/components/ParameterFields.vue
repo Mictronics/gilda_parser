@@ -12,7 +12,7 @@
     >
       <template #header>
         <div class="flex justify-content-between">
-          <div class="text-xl pr-2">Parameter Fields</div>
+          <div class="text-xl pr-2">{{ sourceDataStructure }}</div>
           <IconField>
             <InputIcon>
               <i class="pi pi-search" />
@@ -100,7 +100,8 @@ import { FilterMatchMode } from '@primevue/core/api';
 export default {
   name: 'ParameterFields',
   props: {
-    data: Array
+    data: Array,
+    sourceDataStructure: String
   },
   emits: ['loadEnumValues'],
   data() {
