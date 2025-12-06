@@ -31,21 +31,34 @@
   <div>
     <p v-if="loadedDatabase">Loaded Database: {{ this.loadedDatabase }}</p>
   </div>
-  <DataStructures
-    v-if="loadedDatabase && dataStructures.length !== 0"
-    :data="dataStructures"
-  />
+  <div class="flex flex-wrap gap-2">
+    <DataStructures
+      v-if="loadedDatabase && dataStructures.length !== 0"
+      :data="dataStructures"
+      @loadDataStructure="onLoadDataStructure"
+    />
+    <ParameterFields
+      v-if="loadedDatabase && parameterFields.length !== 0"
+      :data="parameterFields"
+      @loadEnumValues="onLoadEnumValues"
+    />
+    <EnumDialog :data="enumValues" ref="enumDialog" />
+  </div>
 </template>
 
 <script>
 import DataStructures from './components/DataStructures.vue';
+import ParameterFields from './components/ParameterFields.vue';
+import EnumDialog from './components/EnumDialog.vue';
 
 export default {
   name: 'App',
-  components: { DataStructures },
+  components: { DataStructures, ParameterFields, EnumDialog },
   data() {
     return {
       dataStructures: [],
+      parameterFields: [],
+      enumValues: [],
       listDatabases: [],
       loadedDatabase: '',
       selectedDatabase: '',
@@ -72,7 +85,8 @@ export default {
     },
     // Load database from backend
     onClickLoadDatabase() {
-      fetch('/api/v1/load', {
+      this.$refs.enumDialog.setVisible(false);
+      fetch('/api/v1/databases', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -93,6 +107,56 @@ export default {
         })
         .catch((error) => {
           this.showError('Error Loading Database', error.message);
+        });
+    },
+    // Load parameter fields for a specific data structure ID
+    onLoadDataStructure(id) {
+      this.$refs.enumDialog.setVisible(false);
+      fetch('/api/v1/datastructures', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ database: this.selectedDatabase, id: id })
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.text().then((text) => {
+              throw new Error(text);
+            });
+          }
+          return res.json();
+        })
+        .then((data) => {
+          this.parameterFields = data;
+        })
+        .catch((error) => {
+          this.showError('Error Fetching Parameters', error.message);
+        });
+    },
+    // Load enumeration values for a specific parameter ID
+    onLoadEnumValues(id) {
+      fetch('/api/v1/enumerations', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ database: this.selectedDatabase, id: id })
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.text().then((text) => {
+              throw new Error(text);
+            });
+          }
+          return res.json();
+        })
+        .then((data) => {
+          this.enumValues = data;
+          this.$refs.enumDialog.setVisible(true);
+        })
+        .catch((error) => {
+          this.showError('Error Fetching Enumerations', error.message);
         });
     },
     // Show error toast
