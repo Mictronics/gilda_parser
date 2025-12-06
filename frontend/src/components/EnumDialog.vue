@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="Enumeration Values">
+  <Dialog v-model:visible="visible" v-bind:header="name">
     <table class="grouped" v-for="e in data" :key="e.value">
       <tr>
         <td class="pr-2 pb-2">{{ e.value }}</td>
@@ -16,7 +16,8 @@
 export default {
   name: 'EnumDialog',
   props: {
-    data: Array
+    data: Array,
+    name: String
   },
   data() {
     return {

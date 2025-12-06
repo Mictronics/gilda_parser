@@ -34,7 +34,7 @@
                 <Button
                   :label="data.name"
                   variant="link"
-                  @click="onParameterClick(data.id, $event)"
+                  @click="onParameterClick(data.id, data.name, $event)"
                   style="padding-left: 0"
                   v-if="linkTypes.includes(data.type)"
                 />
@@ -114,8 +114,8 @@ export default {
     };
   },
   methods: {
-    onParameterClick(id, ev) {
-      this.$emit('loadEnumValues', id);
+    onParameterClick(id, name, ev) {
+      this.$emit('loadEnumValues', id, name);
     }
   }
 };

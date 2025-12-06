@@ -43,7 +43,7 @@
       :sourceDataStructure="selectedDataStructure"
       @loadEnumValues="onLoadEnumValues"
     />
-    <EnumDialog :data="enumValues" ref="enumDialog" />
+    <EnumDialog :data="enumValues" :name="selectedParameter" ref="enumDialog" />
   </div>
 </template>
 
@@ -64,6 +64,7 @@ export default {
       loadedDatabase: '',
       selectedDatabase: '',
       selectedDataStructure: '',
+      selectedParameter: '',
       isDarkMode: document.documentElement.classList.contains('my-app-dark')
     };
   },
@@ -138,7 +139,8 @@ export default {
         });
     },
     // Load enumeration values for a specific parameter ID
-    onLoadEnumValues(id) {
+    onLoadEnumValues(id, name) {
+      this.selectedParameter = name;
       fetch('/api/v1/enumerations', {
         method: 'PUT',
         headers: {
