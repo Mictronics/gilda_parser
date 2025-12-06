@@ -89,6 +89,9 @@ export default {
     // Load database from backend
     onClickLoadDatabase() {
       this.$refs.enumDialog.setVisible(false);
+      this.dataStructures = [];
+      this.parameterFields = [];
+      this.loadedDatabase = '';
       fetch('/api/v1/databases', {
         method: 'PUT',
         headers: {
