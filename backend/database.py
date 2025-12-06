@@ -24,11 +24,8 @@ class Database:
     def __init__(self, database_path):
         # Connect to database
         try:
-            self.database = sqlite3.connect(
-                database_path, isolation_level="DEFERRED")
+            self.database = sqlite3.connect(database_path, isolation_level="DEFERRED")
             self.cursor = self.database.cursor()
-            self.database.execute("PRAGMA journal_mode = TRUNCATE;")
-            self.database.execute("PRAGMA foreign_keys = ON;")
             self.database.commit()
         except Exception as e:
             print("Connecting database failed.")
@@ -45,12 +42,50 @@ class Database:
         """Close the database connection."""
         self.__exit__(None, None, None)
 
-    def view_data_structures(self):
+    def get_data_structures(self):
         """Retrieve all data structures from the database."""
-        row = self.cursor.execute("SELECT * FROM ViewDataStructures;")
+        rows = self.cursor.execute("SELECT * FROM ViewDataStructures;")
         return [
-            {"id": r[0],
-             "name": r[1],
-             "source": r[2],
-             "channel": r[3]} for r in row.fetchall()
-            ]
+            {"id": r[0], "name": r[1], "source": r[2], "channel": r[3]}
+            for r in rows.fetchall()
+        ]
+
+    def get_parameter_fields(self, id):
+        """Retrieve all parameter fields for a specific ID from database"""
+        rows = self.cursor.execute(
+            "SELECT * FROM ViewParameterFields where DataStructureId=?;", [id]
+        )
+        return [
+            {
+                "id": r[0],
+                "name": r[1],
+                "reference": r[2],
+                "size": r[3],
+                "offset": r[4],
+                "type": r[5],
+                "unit": r[10],
+                "desc": r[11],
+                "min": r[12],
+                "max": r[13],
+                "lowBit": r[14],
+                "highBit": r[15],
+                "comment": r[16],
+            }
+            for r in rows.fetchall()
+        ]
+
+    def get_enumerations(self, id):
+        """Retrieve all enumeration values for a specific parameter ID from database"""
+        rows = self.cursor.execute(
+            "SELECT * FROM ViewParameterEnumValues where ParameterField=?;", [id]
+        )
+        return [
+            {
+                "id": r[0],
+                "name": r[1],
+                "value": r[2],
+                "definition": r[3],
+                "comment": r[4],
+            }
+            for r in rows.fetchall()
+        ]

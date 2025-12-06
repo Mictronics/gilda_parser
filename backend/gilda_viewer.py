@@ -22,15 +22,17 @@
 # https://www.geeksforgeeks.org/python/python-build-a-rest-api-using-flask/
 # https://wpdatatables.com/datatables-alternative/
 #
-from flask import Flask, render_template, jsonify, request
-from flask_restful import Resource, Api
 import argparse
 import json
 import os
 import signal
 import sys
-from database import Database
 from pathlib import Path
+
+from flask import Flask, jsonify, render_template, request
+from flask_restful import Api, Resource
+
+from database import Database
 
 __author__ = "Michael Wolf aka Mictronics"
 __copyright__ = "2025, (C) Michael Wolf"
@@ -54,8 +56,7 @@ def initArgParser(parser=None):
         )
 
         parser.set_defaults(deprecated=None)
-        parser.add_argument("--version", action="version",
-                            version=f"{__version__}")
+        parser.add_argument("--version", action="version", version=f"{__version__}")
         args = parser.parse_args()
 
     except Exception as e:
@@ -67,30 +68,69 @@ def initArgParser(parser=None):
 
 class GetDatabases(Resource):
     """Return available database files to frontend"""
+
     def __init__(self, db_files):
         self.db_files = db_files
 
     def get(self):
-        databases = [{"name": name, "path": path} for name, path in self.db_files.items()]
+        databases = [
+            {"name": name, "path": path} for name, path in self.db_files.items()
+        ]
         return jsonify(databases)
 
-
-class LoadDatabase(Resource):
-    """Load and return selected database to frontend"""
     def put(self):
-        if Path(request.json['database']).is_file() is False:
+        if Path(request.json["database"]).is_file() is False:
             return "Database file not found.", 404
-        try: 
-            with Database(request.json['database']) as db:
-                data = db.view_data_structures()
+        try:
+            with Database(request.json["database"]) as db:
+                data = db.get_data_structures()
             return jsonify(data)
-        
+
+        except Exception as e:
+            return f"{e}", 500
+
+
+class GetParameterFields(Resource):
+    """Load and return parameter fields from database to frontend"""
+
+    def put(self):
+        if Path(request.json["database"]).is_file() is False:
+            return "Database file not found.", 404
+
+        try:
+            id = request.json["id"]
+            if not int.is_integer(id):
+                id = int(id, base=10)
+            with Database(request.json["database"]) as db:
+                data = db.get_parameter_fields(id)
+            return jsonify(data)
+
+        except Exception as e:
+            return f"{e}", 500
+
+
+class GetEnumerations(Resource):
+    """Load and return enumeration values from database to frontend"""
+
+    def put(self):
+        if Path(request.json["database"]).is_file() is False:
+            return "Database file not found.", 404
+
+        try:
+            id = request.json["id"]
+            if not int.is_integer(id):
+                id = int(id, base=10)
+            with Database(request.json["database"]) as db:
+                data = db.get_enumerations(id)
+            return jsonify(data)
+
         except Exception as e:
             return f"{e}", 500
 
 
 def main():
     """Main program function"""
+
     # Setup signal handlers for graceful termination
     def signal_handler(signal, frame):
         sys.exit(0)
@@ -119,14 +159,15 @@ def main():
                 file_path = os.path.join(root, file)
                 db_files[Path(file_path).stem] = file_path
 
-    app = Flask(__name__,template_folder='../frontend/dist')
+    app = Flask(__name__, template_folder="../frontend/dist")
     api = Api(app, prefix="/api/v1")
-    api.add_resource(GetDatabases, '/databases', resource_class_args=[db_files])
-    api.add_resource(LoadDatabase, '/load')
+    api.add_resource(GetDatabases, "/databases", resource_class_args=[db_files])
+    api.add_resource(GetParameterFields, "/datastructures")
+    api.add_resource(GetEnumerations, "/enumerations")
 
-    @app.route('/', methods=['GET'])
+    @app.route("/", methods=["GET"])
     def index():
-        return render_template('index.html')
+        return render_template("index.html")
 
     app.config.from_file("gilda_viewer_config.json", load=json.load)
     app.run()
