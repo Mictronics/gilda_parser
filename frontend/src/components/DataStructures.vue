@@ -11,7 +11,8 @@
       size="small"
     >
       <template #header>
-        <div class="flex justify-end">
+        <div class="flex justify-content-between">
+          <div class="text-xl pr-2">Data Structures</div>
           <IconField>
             <InputIcon>
               <i class="pi pi-search" />
@@ -27,7 +28,11 @@
       <template #empty> No data structures found. </template>
       <Column field="name" header="Engineering Name" style="min-width: 12rem">
         <template #body="{ data }">
-          {{ data.name }}
+          <Button
+            :label="data.name"
+            variant="link"
+            @click="onDataStructureClick(data.id, $event)"
+          />
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText
@@ -39,7 +44,7 @@
           />
         </template>
       </Column>
-      <Column field="channel" header="Channel" style="min-width: 12rem">
+      <Column field="channel" header="Channel">
         <template #body="{ data }">
           {{ data.channel }}
         </template>
@@ -53,9 +58,9 @@
           />
         </template>
       </Column>
-      <Column field="source" header="Source Partition" style="min-width: 12rem">
+      <Column field="source" header="Source Partition">
         <template #body="{ data }">
-          {{ data.source }}
+          <span v-if="data.source != 'N/A'">{{ data.source }}</span>
         </template>
       </Column>
     </DataTable>
@@ -68,8 +73,9 @@ import { FilterMatchMode } from '@primevue/core/api';
 export default {
   name: 'DataStructures',
   props: {
-    data: []
+    data: Array
   },
+  emits: ['loadDataStructure'],
   data() {
     return {
       filters: {
@@ -78,6 +84,11 @@ export default {
         channel: { value: null, matchMode: FilterMatchMode.EQUALS }
       }
     };
+  },
+  methods: {
+    onDataStructureClick(id, ev) {
+      this.$emit('loadDataStructure', id);
+    }
   }
 };
 </script>
