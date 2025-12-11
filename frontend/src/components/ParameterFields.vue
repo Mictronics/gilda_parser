@@ -49,7 +49,7 @@
                   {{ data.comment }}
                 </div>
               </div>
-              <div class="col">
+              <div class="col col-align-end">
                 <table class="text-xs font-light">
                   <tbody>
                     <tr>
@@ -127,5 +127,8 @@ export default {
 <style scoped>
 .no-button {
   padding: var(--p-button-padding-y) 0rem 1rem;
+}
+.col-align-end {
+  text-align: -webkit-right;
 }
 </style>
