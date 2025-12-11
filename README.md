@@ -2,6 +2,8 @@
 
 Parser demo that is reading the GILDA export file in XML format into an SQLite database.
 
+This is a project for development guidance and demonstration purpose.
+
 ## Installation
 
 Clone repository: `git clone https://github.com/Mictronics/gilda_parser`.
