@@ -41,6 +41,12 @@
       :data="parameterFields"
       :sourceDataStructure="selectedDataStructure"
       @loadEnumValues="onLoadEnumValues"
+      @loadArincValues="onLoadArincValues"
+    />
+    <ParameterArinc
+      v-if="loadedDatabase && parameterArinc.length !== 0"
+      :data="parameterArinc"
+      :sourceParameterField="selectedParameter"
     />
     <EnumDialog :data="enumValues" :name="selectedParameter" ref="enumDialog" />
   </div>
@@ -50,14 +56,16 @@
 import DataStructures from './components/DataStructures.vue';
 import ParameterFields from './components/ParameterFields.vue';
 import EnumDialog from './components/EnumDialog.vue';
+import ParameterArinc from './components/ParameterArinc.vue';
 
 export default {
   name: 'App',
-  components: { DataStructures, ParameterFields, EnumDialog },
+  components: { DataStructures, ParameterFields, EnumDialog, ParameterArinc },
   data() {
     return {
       dataStructures: [],
       parameterFields: [],
+      parameterArinc: [],
       enumValues: [],
       listDatabases: [],
       loadedDatabase: '',
@@ -166,6 +174,31 @@ export default {
           this.showError('Error Fetching Enumerations', error.message);
         });
     },
+    // Load Arinc fifo values for a specific parameter ID
+    onLoadArincValues(id, name) {
+      this.selectedParameter = name;
+      fetch('/api/v1/arinc', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ database: this.selectedDatabase, id: id })
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.text().then((text) => {
+              throw new Error(text);
+            });
+          }
+          return res.json();
+        })
+        .then((data) => {
+          this.parameterArinc = data;
+        })
+        .catch((error) => {
+          this.showError('Error Fetching Arinc Fifo', error.message);
+        });
+    },
     // Show error toast
     showError(summary, detail) {
       this.$toast.add({
@@ -179,6 +212,4 @@ export default {
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

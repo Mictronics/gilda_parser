@@ -89,3 +89,24 @@ class Database:
             }
             for r in rows.fetchall()
         ]
+
+    def get_parameter_arinc(self, id):
+        rows = self.cursor.execute(
+            "SELECT * FROM ViewParameterArinc where ParameterFieldsId=?;", [id]
+        )
+        return [
+            {
+                "label": r[0],
+                "name": r[1],
+                "desc": r[2],
+                "fifo": r[3],
+                "type": r[4],
+                "offset": r[5],
+                "size": r[6],
+                "unit": r[7],
+                "min": r[8],
+                "max": r[9],
+                "scale": r[10],
+            }
+            for r in rows.fetchall()
+        ]

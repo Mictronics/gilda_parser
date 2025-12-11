@@ -265,15 +265,19 @@ SELECT
   pa.Label AS Label,
   pa.Name AS Name,
   pa.Description AS Description,
-  pf.RefEngName AS ParameterFieldName,
+  pf.RefEngName AS FifoName,
   pt.Type AS Type,
   pa.Offset AS Offset,
   pa.Length AS Length,
   pu.Unit AS Unit,
   pa.Min AS Min,
   pa.Max AS Max,
-  pa.ScaleFactor AS ScaleFactor
+  pa.ScaleFactor AS ScaleFactor,
+  pf.Id AS ParameterFieldsId
 FROM ParameterArinc pa
+LEFT JOIN ParameterFields pf ON pa.ParameterFieldsId = pf.Id
+LEFT JOIN ParameterTypes pt ON pa.Type = pt.Id
+LEFT JOIN ParameterUnits pu ON pa.Unit = pu.Id
 LEFT JOIN ParameterFields pf ON pa.ParameterFieldsId = pf.Id
 LEFT JOIN ParameterTypes pt ON pa.Type = pt.Id
 LEFT JOIN ParameterUnits pu ON pa.Unit = pu.Id;

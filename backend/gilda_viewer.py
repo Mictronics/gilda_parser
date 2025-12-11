@@ -128,6 +128,25 @@ class GetEnumerations(Resource):
             return f"{e}", 500
 
 
+class GetParameterArinc(Resource):
+    """Load and return ARINC parameters from database to frontend"""
+
+    def put(self):
+        if Path(request.json["database"]).is_file() is False:
+            return "Database file not found.", 404
+
+        try:
+            id = request.json["id"]
+            if not int.is_integer(id):
+                id = int(id, base=10)
+            with Database(request.json["database"]) as db:
+                data = db.get_parameter_arinc(id)
+            return jsonify(data)
+
+        except Exception as e:
+            return f"{e}", 500
+
+
 def main():
     """Main program function"""
 
@@ -164,6 +183,7 @@ def main():
     api.add_resource(GetDatabases, "/databases", resource_class_args=[db_files])
     api.add_resource(GetParameterFields, "/datastructures")
     api.add_resource(GetEnumerations, "/enumerations")
+    api.add_resource(GetParameterArinc, "/arinc")
 
     @app.route("/", methods=["GET"])
     def index():

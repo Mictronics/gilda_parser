@@ -7,12 +7,12 @@
       :rows="10"
       dataKey="id"
       filterDisplay="row"
-      :globalFilterFields="['name', 'description', 'comment']"
+      :globalFilterFields="['name', 'description']"
       size="small"
     >
       <template #header>
         <div class="flex justify-content-between">
-          <div class="text-xl pr-2">{{ sourceDataStructure }}</div>
+          <div class="text-xl pr-2">{{ sourceParameterField }}</div>
           <IconField>
             <InputIcon>
               <i class="pi pi-search" />
@@ -25,28 +25,18 @@
           </IconField>
         </div>
       </template>
-      <template #empty> No parameter fields found. </template>
-      <Column field="name" header="Engineering Name" style="min-width: 12rem">
+      <template #empty> No ARINC parameters found. </template>
+      <Column field="name" header="Name" style="min-width: 12rem">
         <template #body="{ data }">
           <div>
             <div class="grid">
               <div class="col">
-                <Button
-                  :label="data.name"
-                  variant="link"
-                  @click="onParameterClick(data, $event)"
-                  style="padding-left: 0"
-                  v-if="linkTypes.includes(data.type)"
-                />
-                <div class="no-button" v-else>{{ data.name }}</div>
-                <div v-if="data.reference" class="text-xs font-light">
-                  {{ data.reference }}
+                <div class="no-button">{{ data.name }}</div>
+                <div v-if="data.fifo" class="text-xs font-light">
+                  {{ data.fifo }}
                 </div>
                 <div v-if="data.desc" class="text-xs font-light">
                   {{ data.desc }}
-                </div>
-                <div v-if="data.comment" class="text-xs font-light">
-                  {{ data.comment }}
                 </div>
               </div>
               <div class="col col-align-end">
@@ -71,10 +61,10 @@
                       <td>{{ data.max }}</td>
                     </tr>
                     <tr>
-                      <td>Low Bit:</td>
-                      <td>{{ data.lowBit }}</td>
-                      <td class="pl-2">High Bit:</td>
-                      <td>{{ data.hiBit }}</td>
+                      <td>Scale:</td>
+                      <td>{{ data.scale }}</td>
+                      <td class="pl-2">Label:</td>
+                      <td>{{ data.label }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -100,35 +90,21 @@
 import { FilterMatchMode } from '@primevue/core/api';
 
 export default {
-  name: 'ParameterFields',
+  name: 'ParameterArinc',
   props: {
     data: Array,
-    sourceDataStructure: String
+    sourceParameterField: String
   },
-  emits: ['loadEnumValues', 'loadArincValues'],
+  emits: [],
   data() {
     return {
       filters: {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         name: { value: null, matchMode: FilterMatchMode.STARTS_WITH }
-      },
-      linkTypes: ['enum', 'fifo', 'struct', 'A429']
+      }
     };
   },
-  methods: {
-    onParameterClick(data, ev) {
-      switch (data.type) {
-        case 'enum':
-          this.$emit('loadEnumValues', data.id, data.name);
-          break;
-        case 'fifo':
-          this.$emit('loadArincValues', data.id, data.name);
-          break;
-        default:
-          break;
-      }
-    }
-  }
+  methods: {}
 };
 </script>
 
