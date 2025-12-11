@@ -1,0 +1,76 @@
+@font-face {
+  font-family: "Montserrat";
+  font-weight: 400;
+  font-style: normal;
+  font-display: auto;
+  font-optical-sizing: auto;
+  src:
+    local("Montserrat"),
+    url("./fonts/Montserrat-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Montserrat";
+  font-weight: light;
+  font-style: normal;
+  font-display: auto;
+  font-optical-sizing: auto;
+  src:
+    local("Montserrat"),
+    url("./fonts/Montserrat-Light.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Montserrat";
+  font-weight: bold;
+  font-style: normal;
+  font-display: auto;
+  font-optical-sizing: auto;
+  src:
+    local("Montserrat"),
+    url("./fonts/Montserrat-Bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Roboto";
+  font-weight: 400;
+  font-style: normal;
+  font-display: auto;
+  font-optical-sizing: auto;
+  src:
+    local("Montserrat"),
+    url("./fonts/Roboto-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Roboto";
+  font-weight: light;
+  font-style: normal;
+  font-display: auto;
+  font-optical-sizing: auto;
+  src:
+    local("Montserrat"),
+    url("./fonts/Roboto-Light.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Roboto";
+  font-weight: bold;
+  font-style: normal;
+  font-display: auto;
+  font-optical-sizing: auto;
+  src:
+    local("Montserrat"),
+    url("./fonts/Roboto-Bold.woff2") format("woff2");
+}
+
+#app {
+  font-family: "Roboto", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+
+.p-dialog {
+  font-family: "Roboto", Helvetica, Arial, sans-serif;
+}
