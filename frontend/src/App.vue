@@ -1,5 +1,4 @@
 <template>
-  <!DOCTYPE html>
   <title>GILDA Viewer</title>
   <Toast />
   <div class="flex flex-row justify-content-between">
@@ -180,11 +179,6 @@ export default {
 };
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
+<style scoped>
+
 </style>
