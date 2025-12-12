@@ -34,7 +34,7 @@
     <DataStructures
       v-if="loadedDatabase && dataStructures.length !== 0"
       :data="dataStructures"
-      @loadDataStructure="onLoadDataStructure"
+      @loadDataStructure="onLoadParameterFields"
     />
     <ParameterFields
       v-if="loadedDatabase && parameterFields.length !== 0"
@@ -42,11 +42,20 @@
       :sourceDataStructure="selectedDataStructure"
       @loadEnumValues="onLoadEnumValues"
       @loadArincValues="onLoadArincValues"
+      @loadDataStructure="onLoadDataStructure"
     />
     <ParameterArinc
       v-if="loadedDatabase && parameterArinc.length !== 0"
       :data="parameterArinc"
       :sourceParameterField="selectedParameter"
+    />
+    <ParameterFields
+      v-if="loadedDatabase && nestedDataStructure.length !== 0"
+      :data="nestedDataStructure"
+      :sourceDataStructure="selectedParameter"
+      @loadEnumValues="onLoadEnumValues"
+      @loadArincValues="onLoadArincValues"
+      @loadDataStructure="onLoadDataStructure"
     />
     <EnumDialog :data="enumValues" :name="selectedParameter" ref="enumDialog" />
   </div>
@@ -66,6 +75,7 @@ export default {
       dataStructures: [],
       parameterFields: [],
       parameterArinc: [],
+      nestedDataStructure: [],
       enumValues: [],
       listDatabases: [],
       loadedDatabase: '',
@@ -98,6 +108,7 @@ export default {
       this.$refs.enumDialog.setVisible(false);
       this.dataStructures = [];
       this.parameterFields = [];
+      this.nestedDataStructure = [];
       this.loadedDatabase = '';
       fetch('/api/v1/databases', {
         method: 'PUT',
@@ -123,10 +134,12 @@ export default {
         });
     },
     // Load parameter fields for a specific data structure ID
-    onLoadDataStructure(id, name) {
+    onLoadParameterFields(id, name) {
       this.$refs.enumDialog.setVisible(false);
       this.selectedDataStructure = name;
-      fetch('/api/v1/datastructures', {
+      this.nestedDataStructure = [];
+      this.enumValues = [];
+      fetch('/api/v1/parameters', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -197,6 +210,31 @@ export default {
         })
         .catch((error) => {
           this.showError('Error Fetching Arinc Fifo', error.message);
+        });
+    },
+    // Load data structure from referenced name
+    onLoadDataStructure(name) {
+      this.selectedParameter = name;
+      fetch('/api/v1/structure', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ database: this.selectedDatabase, name: name })
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.text().then((text) => {
+              throw new Error(text);
+            });
+          }
+          return res.json();
+        })
+        .then((data) => {
+          this.nestedDataStructure = data;
+        })
+        .catch((error) => {
+          this.showError('Error Fetching Data Structure', error.message);
         });
     },
     // Show error toast

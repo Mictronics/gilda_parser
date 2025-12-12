@@ -105,7 +105,7 @@ export default {
     data: Array,
     sourceDataStructure: String
   },
-  emits: ['loadEnumValues', 'loadArincValues'],
+  emits: ['loadEnumValues', 'loadArincValues', 'loadDataStructure'],
   data() {
     return {
       filters: {
@@ -123,6 +123,9 @@ export default {
           break;
         case 'fifo':
           this.$emit('loadArincValues', data.id, data.name);
+          break;
+        case 'struct':
+          this.$emit('loadDataStructure', data.reference);
           break;
         default:
           break;

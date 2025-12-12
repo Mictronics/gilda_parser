@@ -42,11 +42,35 @@ class Database:
         """Close the database connection."""
         self.__exit__(None, None, None)
 
-    def get_data_structures(self):
+    def get_all_data_structures(self):
         """Retrieve all data structures from the database."""
         rows = self.cursor.execute("SELECT * FROM ViewDataStructures;")
         return [
             {"id": r[0], "name": r[1], "source": r[2], "channel": r[3]}
+            for r in rows.fetchall()
+        ]
+
+    def get_data_structure(self, name):
+        """Retrieve a single data structures from the database."""
+        rows = self.cursor.execute(
+            "SELECT * FROM ViewParameterFields where DataStructure=?;", [name]
+        )
+        return [
+            {
+                "id": r[0],
+                "name": r[1],
+                "reference": r[2],
+                "size": r[3],
+                "offset": r[4],
+                "type": r[5],
+                "unit": r[10],
+                "desc": r[11],
+                "min": r[12],
+                "max": r[13],
+                "lowBit": r[14],
+                "highBit": r[15],
+                "comment": r[16],
+            }
             for r in rows.fetchall()
         ]
 

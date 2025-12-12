@@ -79,11 +79,11 @@ class GetDatabases(Resource):
         return jsonify(databases)
 
     def put(self):
-        if Path(request.json["database"]).is_file() is False:
+        if request.json is None or Path(request.json["database"]).is_file() is False:
             return "Database file not found.", 404
         try:
             with Database(request.json["database"]) as db:
-                data = db.get_data_structures()
+                data = db.get_all_data_structures()
             return jsonify(data)
 
         except Exception as e:
@@ -94,7 +94,7 @@ class GetParameterFields(Resource):
     """Load and return parameter fields from database to frontend"""
 
     def put(self):
-        if Path(request.json["database"]).is_file() is False:
+        if request.json is None or Path(request.json["database"]).is_file() is False:
             return "Database file not found.", 404
 
         try:
@@ -113,7 +113,7 @@ class GetEnumerations(Resource):
     """Load and return enumeration values from database to frontend"""
 
     def put(self):
-        if Path(request.json["database"]).is_file() is False:
+        if request.json is None or Path(request.json["database"]).is_file() is False:
             return "Database file not found.", 404
 
         try:
@@ -132,7 +132,7 @@ class GetParameterArinc(Resource):
     """Load and return ARINC parameters from database to frontend"""
 
     def put(self):
-        if Path(request.json["database"]).is_file() is False:
+        if request.json is None or Path(request.json["database"]).is_file() is False:
             return "Database file not found.", 404
 
         try:
@@ -141,6 +141,23 @@ class GetParameterArinc(Resource):
                 id = int(id, base=10)
             with Database(request.json["database"]) as db:
                 data = db.get_parameter_arinc(id)
+            return jsonify(data)
+
+        except Exception as e:
+            return f"{e}", 500
+
+
+class GetDataStructure(Resource):
+    """Load and return a data structure from database to frontend"""
+
+    def put(self):
+        if request.json is None or Path(request.json["database"]).is_file() is False:
+            return "Database file not found.", 404
+
+        try:
+            name = request.json["name"]
+            with Database(request.json["database"]) as db:
+                data = db.get_data_structure(name=name)
             return jsonify(data)
 
         except Exception as e:
@@ -181,9 +198,10 @@ def main():
     app = Flask(__name__, template_folder="../frontend/dist")
     api = Api(app, prefix="/api/v1")
     api.add_resource(GetDatabases, "/databases", resource_class_args=[db_files])
-    api.add_resource(GetParameterFields, "/datastructures")
+    api.add_resource(GetParameterFields, "/parameters")
     api.add_resource(GetEnumerations, "/enumerations")
     api.add_resource(GetParameterArinc, "/arinc")
+    api.add_resource(GetDataStructure, "/structure")
 
     @app.route("/", methods=["GET"])
     def index():
