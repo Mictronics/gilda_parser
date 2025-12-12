@@ -16,13 +16,13 @@ CREATE TABLE "EthernetDefinitionList" (
 	"Equipment"	INTEGER,
 	"Module"	INTEGER,
 	PRIMARY KEY("Id"),
-	FOREIGN KEY("Equipment") REFERENCES "Equipments"("Id")
+	FOREIGN KEY("Equipment") REFERENCES "Equipments"("Id"),
 	FOREIGN KEY("Module") REFERENCES "Modules"("Id")
 );
 DROP TABLE IF EXISTS "Equipments";
 CREATE TABLE "Equipments" (
 	"Id"	INTEGER NOT NULL,
-	"Name"	TEXT NOT NULL,
+	"Name"	TEXT NOT NULL UNIQUE,
 	PRIMARY KEY("Id") ON CONFLICT IGNORE
 );
 DROP TABLE IF EXISTS "Modules";
@@ -50,7 +50,7 @@ CREATE TABLE "ParameterEnumValues" (
 DROP TABLE IF EXISTS "ParameterFields";
 CREATE TABLE "ParameterFields" (
 	"Id"	INTEGER NOT NULL,
-	"Name"	TEXT NOT NULL UNIQUE,
+	"Name"	TEXT NOT NULL,
 	"RefEngName"	TEXT,
 	"Size"	INTEGER NOT NULL,
 	"Offset"	INTEGER NOT NULL,
@@ -85,7 +85,7 @@ CREATE TABLE "ParameterUnits" (
 DROP TABLE IF EXISTS "PartitionList";
 CREATE TABLE "PartitionList" (
 	"Id"	INTEGER NOT NULL,
-	"Name"	INTEGER NOT NULL UNIQUE,
+	"Name"	TEXT NOT NULL UNIQUE,
 	PRIMARY KEY("Id")
 );
 DROP TABLE IF EXISTS "ChannelDirection";
@@ -103,7 +103,7 @@ CREATE TABLE "Channels" (
 	"Description"	TEXT,
 	PRIMARY KEY("Id","Equipment","Module"),
 	FOREIGN KEY("Equipment") REFERENCES "EthernetDefinitionList"("Id"),
-	FOREIGN KEY("Module") REFERENCES "Modules"("Id")
+	FOREIGN KEY("Module") REFERENCES "Modules"("Id"),
 	FOREIGN KEY("Direction") REFERENCES "ChannelDirection"("Id")
 );
 DROP TABLE IF EXISTS "ParameterArinc";
@@ -299,4 +299,16 @@ SELECT
   ds.Channel AS Channel
 FROM DataStructures ds
 LEFT JOIN PartitionList pl ON ds.SourcePartition = pl.Id;
+DROP INDEX IF EXISTS IdxParameterFieldsNameDataStructure;
+CREATE UNIQUE INDEX IF NOT EXISTS IdxParameterFieldsNameDataStructure ON ParameterFields(Name, DataStructure);
+DROP INDEX IF EXISTS IdxParameterFieldsName;
+CREATE INDEX IF NOT EXISTS IdxParameterFieldsName ON ParameterFields(Name);
+DROP INDEX IF EXISTS IdxParameterFieldsDataStructure;
+CREATE INDEX IF NOT EXISTS IdxParameterFieldsDataStructure ON ParameterFields(DataStructure);
+DROP INDEX IF EXISTS IdxEnumValuesParameterField;
+CREATE INDEX IF NOT EXISTS IdxEnumValuesParameterField ON ParameterEnumValues(ParameterField);
+DROP INDEX IF EXISTS IdxEnumValuesDefinition;
+CREATE INDEX IF NOT EXISTS IdxEnumValuesDefinition ON ParameterEnumValues(Definition);
+DROP INDEX IF EXISTS IdxParameterArincName;
+CREATE INDEX IF NOT EXISTS IdxParameterArincName ON ParameterArinc(Name);
 COMMIT;
