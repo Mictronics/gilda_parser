@@ -278,9 +278,6 @@ FROM ParameterArinc pa
 LEFT JOIN ParameterFields pf ON pa.ParameterFieldsId = pf.Id
 LEFT JOIN ParameterTypes pt ON pa.Type = pt.Id
 LEFT JOIN ParameterUnits pu ON pa.Unit = pu.Id
-LEFT JOIN ParameterFields pf ON pa.ParameterFieldsId = pf.Id
-LEFT JOIN ParameterTypes pt ON pa.Type = pt.Id
-LEFT JOIN ParameterUnits pu ON pa.Unit = pu.Id;
 DROP VIEW IF EXISTS ViewArincDiscretes;
 CREATE VIEW ViewArincDiscretes AS
 SELECT
