@@ -241,6 +241,7 @@ SELECT
   pf.Offset AS Offset,
   pt.Type AS Type,
   pl.Name AS SourcePartition,
+  ds.Id AS DataStructureId
   ds.EngName AS DataStructure,
   ds.Channel AS Channel,
   pu.Unit AS Unit,
@@ -250,7 +251,6 @@ SELECT
   pf.LowBit AS LowBit,
   pf.HighBit AS HighBit,
   pf.Comment AS Comment,
-  ds.Id AS DataStructureId
 FROM ParameterFields pf
 LEFT JOIN ParameterTypes pt ON pf.Type = pt.Id
 LEFT JOIN ParameterUnits pu ON pf.Unit = pu.Id
@@ -294,6 +294,7 @@ LEFT JOIN ParameterFields pf ON ad.ParameterFieldsId = pf.Id;
 DROP VIEW IF EXISTS ViewDataStructures;
 CREATE VIEW ViewDataStructures AS
 SELECT
+  ds.Id AS Id,
   ds.EngName AS EngineeringName,
   pl.Name AS SourcePartition,
   ds.Channel AS Channel
