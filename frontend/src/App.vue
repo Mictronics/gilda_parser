@@ -21,11 +21,14 @@
         Load
       </Button>
     </div>
-    <Button
-      :icon="isDarkMode ? 'pi pi-moon' : 'pi pi-sun'"
-      @click="toggleDarkMode()"
-      size="small"
-    />
+    <div class="flex gap-6">
+      <img src="./assets/logo.png" class="logo" />
+      <Button
+        :icon="isDarkMode ? 'pi pi-moon' : 'pi pi-sun'"
+        @click="toggleDarkMode()"
+        size="small"
+      />
+    </div>
   </div>
   <div>
     <p v-if="loadedDatabase">Loaded Database: {{ this.loadedDatabase }}</p>
@@ -136,6 +139,9 @@ export default {
     // Load parameter fields for a specific data structure ID
     onLoadParameterFields(id, name) {
       this.$refs.enumDialog.setVisible(false);
+      if (this.selectedDataStructure === name) {
+        return;
+      }
       this.selectedDataStructure = name;
       this.nestedDataStructure = [];
       this.enumValues = [];
@@ -164,6 +170,9 @@ export default {
     },
     // Load enumeration values for a specific parameter ID
     onLoadEnumValues(id, name) {
+      if (this.selectedParameter === name) {
+        return;
+      }
       this.selectedParameter = name;
       fetch('/api/v1/enumerations', {
         method: 'PUT',
@@ -190,6 +199,9 @@ export default {
     },
     // Load Arinc fifo values for a specific parameter ID
     onLoadArincValues(id, name) {
+      if (this.selectedParameter === name) {
+        return;
+      }
       this.selectedParameter = name;
       this.nestedDataStructure = [];
       this.enumValues = [];
@@ -217,6 +229,9 @@ export default {
     },
     // Load data structure from referenced name
     onLoadDataStructure(name) {
+      if (this.selectedParameter === name) {
+        return;
+      }
       this.selectedParameter = name;
       this.enumValues = [];
       this.parameterArinc = [];
