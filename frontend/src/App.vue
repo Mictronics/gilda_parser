@@ -139,6 +139,7 @@ export default {
       this.selectedDataStructure = name;
       this.nestedDataStructure = [];
       this.enumValues = [];
+      this.parameterArinc = [];
       fetch('/api/v1/parameters', {
         method: 'PUT',
         headers: {
@@ -190,6 +191,8 @@ export default {
     // Load Arinc fifo values for a specific parameter ID
     onLoadArincValues(id, name) {
       this.selectedParameter = name;
+      this.nestedDataStructure = [];
+      this.enumValues = [];
       fetch('/api/v1/arinc', {
         method: 'PUT',
         headers: {
@@ -215,6 +218,8 @@ export default {
     // Load data structure from referenced name
     onLoadDataStructure(name) {
       this.selectedParameter = name;
+      this.enumValues = [];
+      this.parameterArinc = [];
       fetch('/api/v1/structure', {
         method: 'PUT',
         headers: {
