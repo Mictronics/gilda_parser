@@ -7,7 +7,7 @@
       :rows="10"
       dataKey="id"
       filterDisplay="row"
-      :globalFilterFields="['name', 'channel', 'source']"
+      :globalFilterFields="['name', 'channel', 'source', 'comment']"
       size="small"
     >
       <template #header>
