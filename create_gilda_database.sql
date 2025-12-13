@@ -5,6 +5,7 @@ CREATE TABLE "DataStructures" (
 	"EngName"	TEXT NOT NULL UNIQUE,
 	"SourcePartition"	INTEGER,
 	"Channel"	INTEGER,
+	"Comment"	Text,
 	PRIMARY KEY("Id"),
 	FOREIGN KEY("SourcePartition") REFERENCES "PartitionList"("Id")
 );
@@ -241,7 +242,7 @@ SELECT
   pf.Offset AS Offset,
   pt.Type AS Type,
   pl.Name AS SourcePartition,
-  ds.Id AS DataStructureId
+  ds.Id AS DataStructureId,
   ds.EngName AS DataStructure,
   ds.Channel AS Channel,
   pu.Unit AS Unit,
@@ -250,7 +251,7 @@ SELECT
   pf.Max AS Max,
   pf.LowBit AS LowBit,
   pf.HighBit AS HighBit,
-  pf.Comment AS Comment,
+  pf.Comment AS Comment
 FROM ParameterFields pf
 LEFT JOIN ParameterTypes pt ON pf.Type = pt.Id
 LEFT JOIN ParameterUnits pu ON pf.Unit = pu.Id
@@ -277,7 +278,7 @@ SELECT
 FROM ParameterArinc pa
 LEFT JOIN ParameterFields pf ON pa.ParameterFieldsId = pf.Id
 LEFT JOIN ParameterTypes pt ON pa.Type = pt.Id
-LEFT JOIN ParameterUnits pu ON pa.Unit = pu.Id
+LEFT JOIN ParameterUnits pu ON pa.Unit = pu.Id;
 DROP VIEW IF EXISTS ViewArincDiscretes;
 CREATE VIEW ViewArincDiscretes AS
 SELECT
@@ -294,7 +295,8 @@ SELECT
   ds.Id AS Id,
   ds.EngName AS EngineeringName,
   pl.Name AS SourcePartition,
-  ds.Channel AS Channel
+  ds.Channel AS Channel,
+  ds.Comment AS Comment
 FROM DataStructures ds
 LEFT JOIN PartitionList pl ON ds.SourcePartition = pl.Id;
 DROP INDEX IF EXISTS IdxParameterFieldsNameDataStructure;
