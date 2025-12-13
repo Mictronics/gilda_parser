@@ -46,7 +46,7 @@ class Database:
         """Retrieve all data structures from the database."""
         rows = self.cursor.execute("SELECT * FROM ViewDataStructures;")
         return [
-            {"id": r[0], "name": r[1], "source": r[2], "channel": r[3]}
+            {"id": r[0], "name": r[1], "source": r[2], "channel": r[3], "comment": r[4]}
             for r in rows.fetchall()
         ]
 

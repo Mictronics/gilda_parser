@@ -16,6 +16,7 @@
 # along with GILDA parser. If not, see http://www.gnu.org/licenses/.
 #
 from defusedxml.minidom import parse
+
 from database import Database
 
 
@@ -61,6 +62,7 @@ class GildaXml:
                     "EmittedByPartition"
                 ):
                     eng_name = struct.getAttribute("EngName").strip()
+                    comment = struct.getAttribute("Comments").strip()
                     src_partition = partitions[
                         struct.getAttribute("EmittedByPartition")
                     ]
@@ -71,6 +73,7 @@ class GildaXml:
                             "name": eng_name,
                             "src_partition": src_partition,
                             "channel_id": None,
+                            "comment": comment,
                         }
                         # Query channel ID for structure only if inserting new structure
                         ch_id = self.database.get_channel_id(eng_name)
@@ -122,8 +125,7 @@ class GildaXml:
                                     ).strip()
                             # Process NonEnumerate types and units
                             # Populate types and units if not already present
-                            non_enums = field.getElementsByTagName(
-                                "NonEnumerate")
+                            non_enums = field.getElementsByTagName("NonEnumerate")
                             for ne in non_enums:
                                 if ne.hasAttribute("Type"):
                                     type = ne.getAttribute("Type").strip()
@@ -171,8 +173,7 @@ class GildaXml:
 
                                 field_data["unit"] = units["unitless"]
                                 field_data["type"] = types["enum"]
-                                field_id = self.database.insert_field(
-                                    field_data)
+                                field_id = self.database.insert_field(field_data)
 
                                 for en in enums:
                                     if en.hasAttribute("Value") and en.hasAttribute(
@@ -218,8 +219,7 @@ class GildaXml:
                                                 en.getAttribute("Value"), base=2
                                             ),
                                         }
-                                        self.database.insert_enum_value(
-                                            enum_value)
+                                        self.database.insert_enum_value(enum_value)
 
             if self.database.foreign_key_check() > 0:
                 raise ValueError("Error in foreign key relation!")
@@ -267,11 +267,9 @@ class GildaChannelsXml(GildaXml):
                     nodes += mod.getElementsByTagName("ToPartition")
                     nodes += mod.getElementsByTagName("InterPartition")
                     for node in nodes:
-                        ch = int(node.getAttribute(
-                            "ChannelName").split("_")[1])
+                        ch = int(node.getAttribute("ChannelName").split("_")[1])
                         desc = node.getAttribute("Description")
-                        direction = directions[node.tagName.replace(
-                            "Partition", "")]
+                        direction = directions[node.tagName.replace("Partition", "")]
 
                         channel_data = {
                             "id": ch,

@@ -71,8 +71,8 @@ class Database:
     def insert_structure(self, data):
         """Insert a data structure into the database."""
         self.cursor.execute(
-            """INSERT INTO DataStructures (EngName, SourcePartition, Channel)
-             VALUES (:name, :src_partition, :channel_id)
+            """INSERT INTO DataStructures (EngName, SourcePartition, Channel, Comment)
+             VALUES (:name, :src_partition, :channel_id, :comment)
              ON CONFLICT(EngName)
              DO UPDATE SET SourcePartition = :src_partition WHERE EngName = :name;""",
             data,
