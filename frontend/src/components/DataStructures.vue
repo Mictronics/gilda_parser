@@ -28,11 +28,19 @@
       <template #empty> No data structures found. </template>
       <Column field="name" header="Engineering Name" style="min-width: 12rem">
         <template #body="{ data }">
-          <Button
-            :label="data.name"
-            variant="link"
-            @click="onDataStructureClick(data.id, data.name, $event)"
-          />
+          <div class="grid">
+            <div class="col">
+              <Button
+                :label="data.name"
+                variant="link"
+                style="padding-left: 0"
+                @click="onDataStructureClick(data.id, data.name, $event)"
+              />
+              <div v-if="data.comment" class="text-xs font-light">
+                {{ data.comment }}
+              </div>
+            </div>
+          </div>
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText
