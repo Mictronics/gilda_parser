@@ -26,7 +26,7 @@
         </div>
       </template>
       <template #empty> No data structures found. </template>
-      <Column field="name" header="Engineering Name" style="min-width: 12rem">
+      <Column field="name" header="Engineering Name" class="column-width">
         <template #body="{ data }">
           <div class="grid">
             <div class="col">
@@ -36,7 +36,7 @@
                 style="padding-left: 0"
                 @click="onDataStructureClick(data.id, data.name, $event)"
               />
-              <div v-if="data.comment" class="text-xs font-light">
+              <div v-if="data.comment" class="text-xs font-light column-width">
                 {{ data.comment }}
               </div>
             </div>
@@ -102,4 +102,9 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped></style>
+<style scoped>
+.column-width {
+  min-width: 12rem;
+  max-width: 25rem;
+}
+</style>
