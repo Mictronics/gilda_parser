@@ -58,10 +58,10 @@
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText
+            style="width: 8.3ch"
             v-model="filterModel.value"
             type="number"
             @input="filterCallback()"
-            placeholder="Search by channel"
             size="small"
           />
         </template>
