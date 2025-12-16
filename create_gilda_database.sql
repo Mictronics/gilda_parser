@@ -311,4 +311,6 @@ DROP INDEX IF EXISTS IdxEnumValuesDefinition;
 CREATE INDEX IF NOT EXISTS IdxEnumValuesDefinition ON ParameterEnumValues(Definition);
 DROP INDEX IF EXISTS IdxParameterArincName;
 CREATE INDEX IF NOT EXISTS IdxParameterArincName ON ParameterArinc(Name);
+DROP INDEX IF EXISTS IdxParameterArincLabelNameField;
+CREATE UNIQUE INDEX IdxParameterArincLabelNameField ON ParameterArinc(Label,Name,ParameterFieldsId);
 COMMIT;
