@@ -140,9 +140,9 @@ class GetDataStructure(Resource):
 @click.version_option(version=__version__)
 def cli(ctx, input_path):
     """
-    Read GILDA configuration from SQLite database.
+    GILDA viewer backend server.
 
-    INPUT_PATH contains GILDA SQlite database files.
+    INPUT_PATH containing GILDA SQlite database files.
 
     License GPL-3+ (C) 2025 Michael Wolf, www.mictronics.de
     """
