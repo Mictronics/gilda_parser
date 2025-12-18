@@ -3,17 +3,17 @@
 ## Run
 
 ```bash
-$ python gilda_viewer.py -h
-Input path with database location must be specified.
-usage: gilda_viewer [-h] [--version] [input]
+$ python gilda_viewer.py --help
+Usage: gilda_viewer.py [INPUT_PATH]
 
-Read GILDA configuration from SQLite database.
+  Read GILDA configuration from SQLite database.
 
-positional arguments:
-  input       Input path that contains GILDA SQlite database files.
+  INPUT_PATH contains GILDA SQlite database files.
 
-options:
-  -h, --help  show this help message and exit
-  --version   show program's version number and exit
+  License GPL-3+ (C) 2025 Michael Wolf, www.mictronics.de
+
+Options:
+  --version  Show the version and exit.
+  --help     Show this message and exit.
 
 ```

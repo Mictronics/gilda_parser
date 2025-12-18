@@ -15,20 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with GILDA parser. If not, see http://www.gnu.org/licenses/.
 #
-#
-#
-# https://github.com/Nur84/datatables
-# https://blog.miguelgrinberg.com/post/designing-a-restful-api-using-flask-restful
-# https://www.geeksforgeeks.org/python/python-build-a-rest-api-using-flask/
-# https://wpdatatables.com/datatables-alternative/
-#
-import argparse
 import json
 import os
 import signal
 import sys
 from pathlib import Path
 
+import click
 from flask import Flask, jsonify, render_template, request
 from flask_restful import Api, Resource
 
@@ -38,32 +31,6 @@ __author__ = "Michael Wolf aka Mictronics"
 __copyright__ = "2025, (C) Michael Wolf"
 __license__ = "GPL v3+"
 __version__ = "1.0.0"
-
-
-def initArgParser(parser=None):
-    """Initialize the command line argument parsing."""
-    if parser is None:
-        return None
-
-    try:
-        # Positional arguments
-        parser.add_argument(
-            "input",
-            help="Input path that contains GILDA SQlite database files.",
-            default=None,
-            nargs="?",
-            type=str,
-        )
-
-        parser.set_defaults(deprecated=None)
-        parser.add_argument("--version", action="version", version=f"{__version__}")
-        args = parser.parse_args()
-
-    except Exception as e:
-        print(f"Error initializing argument parser: {e}")
-        return None
-
-    return args
 
 
 class GetDatabases(Resource):
@@ -164,8 +131,21 @@ class GetDataStructure(Resource):
             return f"{e}", 500
 
 
-def main():
-    """Main program function"""
+@click.group(invoke_without_command=True)
+@click.pass_context
+@click.argument(
+    "input_path",
+    type=click.Path(dir_okay=True, exists=True, readable=True),
+)
+@click.version_option(version=__version__)
+def cli(ctx, input_path):
+    """
+    Read GILDA configuration from SQLite database.
+
+    INPUT_PATH contains GILDA SQlite database files.
+
+    License GPL-3+ (C) 2025 Michael Wolf, www.mictronics.de
+    """
 
     # Setup signal handlers for graceful termination
     def signal_handler(signal, frame):
@@ -176,20 +156,9 @@ def main():
     signal.signal(signal.SIGABRT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    parser = argparse.ArgumentParser(
-        prog="gilda_viewer",
-        description="Read GILDA configuration from SQLite database.",
-        epilog="License GPL-3+ (C) 2025 Michael Wolf, www.mictronics.de",
-    )
-    args = initArgParser(parser)
-    if args is None or args.input is None:
-        print("Input path with database location must be specified.")
-        parser.print_help()
-        sys.exit(1)  # Exit with error when argument parsing fails
-
     db_files = {}
 
-    for root, _dirs, files in os.walk(args.input):
+    for root, _dirs, files in os.walk(input_path):
         for file in files:
             if file.endswith((".sqlite", "sqlite3", ".db")):
                 file_path = os.path.join(root, file)
@@ -211,5 +180,6 @@ def main():
     app.run()
 
 
+main = cli
 if __name__ == "__main__":
     main()
