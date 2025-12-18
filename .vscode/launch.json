@@ -10,7 +10,12 @@
       "request": "launch",
       "program": "${workspaceFolder}/gilda_parser.py",
       "console": "integratedTerminal",
-      "args": ["./gilda/1004", "./output/database_v1004.sqlite"]
+      "args": [
+        "convert",
+        "-s",
+        "./gilda/1004",
+        "./output/database_v1004.sqlite"
+      ]
     },
     {
       "name": "ARINC",
@@ -19,6 +24,8 @@
       "program": "${workspaceFolder}/gilda_parser.py",
       "console": "integratedTerminal",
       "args": [
+        "convert",
+        "-s",
         "--arinc",
         "ARINC.conf",
         "./gilda/1004",
@@ -31,7 +38,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/gilda_parser.py",
       "console": "integratedTerminal",
-      "args": ["--create", "./output/database_v1004.sqlite"]
+      "args": ["create", "./output/database_v1004.sqlite"]
     },
     {
       "name": "Viewer",
